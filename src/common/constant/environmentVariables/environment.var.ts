@@ -36,4 +36,9 @@ export const ENVIRONMENT = {
     api_key: process.env.API_KEY,
     api_secret: process.env.CLOUDINARY_SECRET,
   },
+
+  CONN_PORT: {
+    PORT: process.env.PORT,
+    SESSION_SECRET: process.env.SESSION_SECRET,
+  },
 };
