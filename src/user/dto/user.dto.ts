@@ -8,7 +8,6 @@ import {
   IsPhoneNumber,
   IsString,
   IsEnum,
-  IsNumber,
 } from 'class-validator';
 import { Interested } from 'src/common/constant/enum/enum';
 

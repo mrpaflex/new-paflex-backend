@@ -16,7 +16,6 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from 'src/auth/decorators/loggedIn-user.decorator';
 import {
   CreatePostDto,
-  DeDTO,
   UpdatePostDto,
   ValidateActionDto,
 } from '../dto/posts.dto';

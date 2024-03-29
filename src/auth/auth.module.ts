@@ -5,16 +5,12 @@ import { GoogleStrategy } from './strategy/googleStrategy/google.strategy';
 import { UserModule } from 'src/user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategy/jwtStrategy/jwt.strategy';
-import { UserService } from 'src/user/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    PassportModule.register({
-      global: true,
-      // defaultStrategy: 'google',
-    }),
+    PassportModule.register({}),
     JwtModule.registerAsync({
       global: true,
       useFactory: (config: ConfigService) => ({

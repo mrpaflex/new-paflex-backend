@@ -23,12 +23,6 @@ export class User {
   @Prop()
   cloudinary_id?: string;
 
-  // @Prop({ type: Object })
-  // profilePicture?: object;
-
-  // @Prop({ type: Object })
-  // profilePictId?: object;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   referredBy?: mongoose.Types.ObjectId;
 

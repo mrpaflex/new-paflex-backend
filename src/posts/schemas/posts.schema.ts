@@ -23,15 +23,6 @@ export class PostEntity {
   @Prop({ type: Boolean, default: false })
   isPostEdited: boolean;
 
-  // @Prop({ type: [Object], default: [] })
-  // imagesOrVideo?: object[];
-
-  // @Prop({ type: [Object], default: [] })
-  // imagesOrVideo?: object[];
-
-  // @Prop({ type: String })
-  // cloudinary_id?: string;
-
   @Prop({ type: String, enum: PostType, default: PostType.PUBLIC })
   postType: PostType;
 

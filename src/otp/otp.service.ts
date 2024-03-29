@@ -6,7 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Otp, OtpDocument } from './schemas/otp.schema';
 import { Model } from 'mongoose';
-import { CreateOtpDto, ValidateOtpDto, VerifyOtpDto } from './dto/otp.dto';
+import { CreateOtpDto } from './dto/otp.dto';
 import { generateOtpCode } from 'src/common/constant/generateCode/random.code';
 import { MailService } from 'src/mail/mail.service';
 import { ConstantMessage } from 'src/common/constant/message/msg.response';

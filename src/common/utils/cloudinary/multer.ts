@@ -5,20 +5,6 @@ import * as path from 'path';
 
 export const multerOptions: MulterOptions = {
   storage: diskStorage({
-    // destination: (req, file, cb) => {
-    //   //this is not actually necessary
-    //   const allowedFileTypes = ['.jpg', '.jpeg', '.png', '.pdf'];
-    //   const ext = path.extname(file.originalname).toLowerCase();
-    //   if (allowedFileTypes.includes(ext)) {
-    //     cb(null, 'src/uploads/');
-    //   } else {
-    //     return cb(
-    //       null,
-    //       'can be uploaded, wrong file type, although this part of the code is not necessary, because without the code will still run',
-    //     );
-    //   }
-    // },
-
     filename: (req, file, cb) => {
       const splitFileName = file.originalname.split('.');
       const random = Math.round(Math.random() * 100);
