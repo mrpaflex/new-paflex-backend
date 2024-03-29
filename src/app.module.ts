@@ -5,8 +5,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { MessageModule } from './message/message.module';
-import { MulterModule } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
 import { OtpModule } from './otp/otp.module';
 import { MailModule } from './mail/mail.module';
 
@@ -15,17 +13,14 @@ import { MailModule } from './mail/mail.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-
-    MulterModule.register({
-      storage: memoryStorage(),
-    }),
-
     MongooseModule.forRootAsync({
       useFactory: (config: ConfigService) => ({
         uri: config.get<string>('DATABASE_URL'),
       }),
+
       inject: [ConfigService],
     }),
+
     UserModule,
     AuthModule,
     PostsModule,
@@ -33,7 +28,5 @@ import { MailModule } from './mail/mail.module';
     OtpModule,
     MailModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}
