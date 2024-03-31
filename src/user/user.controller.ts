@@ -47,14 +47,9 @@ export class UserController {
   async verifyPhoneNumber(@Body() payload: VerifyPhoneNumberDto) {
     return await this.userService.verifyPhoneNumber(payload);
   }
-  @Get('get-all')
+  @Get()
   async getAll(): Promise<UserDocument[]> {
     return await this.userService.getAll();
-  }
-
-  @Get()
-  async sendResponse() {
-    return 'love you';
   }
 
   @UseGuards(AuthGuard('jwt'))
