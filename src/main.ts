@@ -15,16 +15,12 @@ async function bootstrap() {
   app.use(
     session({
       secret: ENVIRONMENT.CONN_PORT.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
     }),
   );
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
-  const port = ENVIRONMENT.CONN_PORT.PORT;
+  const PORT = ENVIRONMENT.CONN_PORT.PORT || 3000;
 
-  await app.listen(port, () => {
-    console.log(`now running on port ${port}`);
-  });
+  await app.listen(PORT);
 }
 bootstrap();
