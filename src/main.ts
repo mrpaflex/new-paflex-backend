@@ -15,6 +15,8 @@ async function bootstrap() {
   app.use(
     session({
       secret: ENVIRONMENT.CONN_PORT.SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
     }),
   );
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
