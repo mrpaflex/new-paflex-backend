@@ -9,6 +9,7 @@ export const ENVIRONMENT = {
   TWILLO: {
     account_id: process.env.ACCOUNT_ID,
     authToken: process.env.AUTH_TOKEN,
+    FROM: process.env.FROM,
   },
 
   GoogleSuperMethod: {
@@ -28,7 +29,7 @@ export const ENVIRONMENT = {
   },
 
   REFERRAL: {
-    ReferralPoint: process.env.ReferralPoint,
+    ReferralPoint: +process.env.ReferralPoint,
   },
 
   CLOUDINARY: {

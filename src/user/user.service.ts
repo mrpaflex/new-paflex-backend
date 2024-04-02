@@ -16,7 +16,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PostsService } from 'src/posts/services/posts.service';
 import { OtpService } from 'src/otp/otp.service';
-import { ConfigService } from '@nestjs/config';
 import { generateOtpCode } from 'src/common/constant/generateCode/random.code';
 import { Twilio } from 'twilio';
 import { ENVIRONMENT } from 'src/common/constant/environmentVariables/environment.var';
@@ -29,7 +28,6 @@ export class UserService {
     private jwt: JwtService,
     private postService: PostsService,
     private otpService: OtpService,
-    private config: ConfigService,
   ) {}
 
   async create(req: any, referralId: string) {
@@ -83,7 +81,7 @@ export class UserService {
 
     const msg = await client.messages.create({
       body: `your verification code is ${code}`,
-      from: this.config.get<string>('FROM'),
+      from: ENVIRONMENT.TWILLO.FROM,
       to: `${phoneNumber}`,
     });
 
@@ -143,7 +141,7 @@ export class UserService {
     return await this.userModel.findByIdAndUpdate(
       userId,
       { ...payload },
-      { new: true },
+      { new: true, runValidators: true },
     );
   }
 
@@ -178,15 +176,9 @@ export class UserService {
     if (postIds.length > 0) {
       await this.postService.deleteMyPosts(postIds, user);
     }
-    if (profilePict) {
-      try {
-        await cloudinary.uploader.destroy(user.cloudinary_id);
-      } catch (error) {
-        console.log(error);
-      }
 
-      //await deletePostImages(profilePict);
-    }
+    await cloudinary.uploader.destroy(user.cloudinary_id);
+
     await this.userModel.findByIdAndDelete(userId, { new: true });
 
     return `Account deleted successfully`;
@@ -270,7 +262,7 @@ export class UserService {
   async addReferralBonus(referralId: string) {
     const referUser = await this.getById(referralId);
     const oldBalance = referUser.balance;
-    const ReferralPoint = +this.config.get<number>('ReferralPoint');
+    const ReferralPoint = ENVIRONMENT.REFERRAL.ReferralPoint;
     const NewBalance = oldBalance + ReferralPoint;
 
     await this.userModel.findByIdAndUpdate(
