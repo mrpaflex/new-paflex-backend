@@ -17,8 +17,6 @@ export class CreateUserDto {
   phoneNumber: string;
 }
 
-export class LoginUserDto extends CreateUserDto {}
-
 export class UpdateUserDto {
   @IsOptional()
   @IsString()
@@ -66,3 +64,16 @@ export class VerifyPhoneNumberDto {
   @IsNotEmpty()
   code: string;
 }
+
+export class PasswordDto {
+  @IsNotEmpty()
+  @IsPhoneNumber()
+  phoneNumber: string;
+
+  @IsNotEmpty()
+  @IsString()
+  //@IsStrongPassword()
+  password: string;
+}
+
+export class LoginUserDto extends PasswordDto {}

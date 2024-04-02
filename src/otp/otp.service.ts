@@ -19,13 +19,14 @@ export class OtpService {
   ) {}
 
   async createOtp(payload: CreateOtpDto) {
-    const { email } = payload;
+    const { email, phoneNumber } = payload;
 
     const otp = await this.otpModel.findOneAndUpdate(
-      { email: email },
+      { $or: [{ email: email }, { phoneNumber: phoneNumber }] },
       { ...payload },
       { new: true, upsert: true },
     );
+
     return otp;
   }
 
@@ -33,6 +34,7 @@ export class OtpService {
     await this.otpModel.findOne({ email, phoneNumber });
 
     const code = generateOtpCode;
+
     let template = await ConstantMessage.template(code);
     let subject = ConstantMessage.subject;
 

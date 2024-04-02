@@ -51,6 +51,9 @@ export class User {
   interestedIn?: string;
 
   @Prop({ type: String })
+  password?: string;
+
+  @Prop({ type: String })
   description?: string;
 
   @Prop({ type: String })

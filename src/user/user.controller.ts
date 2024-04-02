@@ -15,6 +15,7 @@ import { UserDocument } from './schemas/user.schema';
 import {
   CreateUserDto,
   LoginUserDto,
+  PasswordDto,
   UpdateUserDto,
   VerifyPhoneNumberDto,
 } from './dto/user.dto';
@@ -43,6 +44,11 @@ export class UserController {
     return await this.userService.loginWithPhoneNumber(payload);
   }
 
+  @Post('set-password')
+  async setPassword(@Body() payload: PasswordDto) {
+    return await this.userService.setPassword(payload);
+  }
+
   @Post('verify-number')
   async verifyPhoneNumber(@Body() payload: VerifyPhoneNumberDto) {
     return await this.userService.verifyPhoneNumber(payload);
@@ -55,7 +61,7 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Patch()
   async Profile(@CurrentUser() user: any, @Body() payload: UpdateUserDto) {
-    return await this.userService.Profile(user, payload);
+    return await this.userService.updateProfile(user, payload);
   }
 
   @UseGuards(AuthGuard('jwt'))

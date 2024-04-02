@@ -10,6 +10,7 @@ import { Model } from 'mongoose';
 import {
   CreateUserDto,
   LoginUserDto,
+  PasswordDto,
   UpdateUserDto,
   VerifyPhoneNumberDto,
 } from './dto/user.dto';
@@ -20,6 +21,10 @@ import { generateOtpCode } from 'src/common/constant/generateCode/random.code';
 import { Twilio } from 'twilio';
 import { ENVIRONMENT } from 'src/common/constant/environmentVariables/environment.var';
 import { cloudinary } from 'src/common/utils/cloudinary/cloudinary';
+import {
+  comparedHashedPassword,
+  hashPassword,
+} from 'src/common/utils/hashed/password.bcrypt';
 
 @Injectable()
 export class UserService {
@@ -33,12 +38,14 @@ export class UserService {
   async create(req: any, referralId: string) {
     if (referralId) {
       const referredUser = await this.getById(referralId);
+
       if (!referredUser) {
         return true;
       }
       await this.addReferralBonus(referralId);
     }
     const { email, firstName, lastName, refreshToken, picture } = req.user;
+
     const createdUser = await this.userModel.create({
       email,
       firstName,
@@ -64,19 +71,20 @@ export class UserService {
     const userExist = await this.userModel.findOne({ phoneNumber });
 
     if (userExist) {
-      throw new BadRequestException('user already exist');
+      throw new BadRequestException('Account already exist');
     }
 
     if (referralId) {
       await this.getById(referralId);
     }
 
-    const user = await this.userModel.create({
+    await this.userModel.create({
       phoneNumber,
       referredBy: referralId,
     });
 
     const code = generateOtpCode;
+
     await this.otpService.sendOtp('', phoneNumber);
 
     const msg = await client.messages.create({
@@ -89,15 +97,24 @@ export class UserService {
       throw new InternalServerErrorException('Can not proceed');
     }
 
-    return user;
+    return `verify your account`;
   }
 
   async loginWithPhoneNumber(payload: LoginUserDto) {
-    const { phoneNumber } = payload;
+    const { phoneNumber, password } = payload;
     const user = await this.userModel.findOne({ phoneNumber });
     if (!user) {
       throw new NotFoundException(`Account doesn't exist`);
     }
+
+    if ((await comparedHashedPassword(password, user.password)) === false) {
+      throw new BadRequestException('Password does not match');
+    }
+
+    if (!user.isAccountVerified) {
+      throw new BadRequestException(`You haven't verify your phone number`);
+    }
+
     const jwtPayload = {
       id: user._id,
       firstName: user.firstName,
@@ -136,12 +153,11 @@ export class UserService {
     return await this.userModel.find();
   }
 
-  async Profile(user: UserDocument, payload: UpdateUserDto) {
-    const userId = user._id.toString();
-    return await this.userModel.findByIdAndUpdate(
-      userId,
+  async updateProfile(user: UserDocument, payload: UpdateUserDto) {
+    return await this.userModel.findOneAndUpdate(
+      { _id: user._id },
       { ...payload },
-      { new: true, runValidators: true },
+      { new: true },
     );
   }
 
@@ -170,8 +186,6 @@ export class UserService {
     const posts = await this.postService.MyPosts(user);
 
     const postIds = posts.map((post) => post._id);
-
-    const profilePict = user.profilePicture;
 
     if (postIds.length > 0) {
       await this.postService.deleteMyPosts(postIds, user);
@@ -255,7 +269,11 @@ export class UserService {
     userExist.isAccountVerified = true;
 
     await userExist.save();
-    await this.addReferralBonus(userExist.referredBy.toString());
+
+    if (userExist.referredBy) {
+      await this.addReferralBonus(userExist.referredBy.toString());
+    }
+
     return 'your account is now verified';
   }
 
@@ -270,5 +288,26 @@ export class UserService {
       { balance: NewBalance },
       { new: true },
     );
+  }
+
+  async setPassword(payload: PasswordDto) {
+    const { phoneNumber } = payload;
+    const user = await this.getByPhoneNumber(phoneNumber);
+
+    if (!user) {
+      throw new NotFoundException('No user found');
+    }
+
+    if (!user.isAccountVerified) {
+      throw new BadRequestException('Can not proceed');
+    }
+
+    const password = await hashPassword(payload.password);
+
+    user.password = password;
+
+    await user.save();
+
+    return user;
   }
 }
