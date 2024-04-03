@@ -5,6 +5,10 @@ export class ReactionDto {
   @IsNotEmpty()
   @IsEnum(PostReactionEnum)
   reactions: string;
+
+  @IsNotEmpty()
+  @IsMongoId()
+  postId: string;
 }
 
 export class ReactToCommentOrReplyDto extends ReactionDto {
@@ -15,3 +19,5 @@ export class ReactToCommentOrReplyDto extends ReactionDto {
   @IsMongoId()
   commentId: string;
 }
+
+export class UpdateReactionDTO extends ReactionDto {}

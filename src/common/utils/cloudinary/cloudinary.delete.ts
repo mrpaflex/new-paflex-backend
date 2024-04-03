@@ -1,37 +1,64 @@
 import { cloudinary } from './cloudinary';
-export const cloudDeletePost = async (posts: any) => {
-  const files = await Promise.all(
-    posts.map(async (post) => {
-      return {
-        image: post.images,
-        video: post.video,
-      };
-    }),
-  );
 
-  if (!files) {
+export const cloudDeletePostImageOrVideo = async (post: any) => {
+  if (post.images && post.images.length > 0) {
+    const files = await Promise.all(
+      post.images.map(async (image: any) => {
+        return {
+          cloudinaryId: image.cloudinaryId,
+        };
+      }),
+    );
+
+    await Promise.all(
+      files.map(async (cloudId) => {
+        await cloudinary.uploader.destroy(cloudId.cloudinaryId);
+      }),
+    );
+  }
+
+  if (post.video && post.video.length > 0) {
+    const files = await Promise.all(
+      post.video.map(async (vid: any) => {
+        return {
+          cloudinaryId: vid.cloudinaryId,
+        };
+      }),
+    );
+
+    await Promise.all(
+      files.map(async (cloudId) => {
+        await cloudinary.uploader.destroy(cloudId.cloudinaryId);
+      }),
+    );
+  }
+};
+
+export const cloudDeletePost = async (posts: any) => {
+  if (!posts || posts.length === 0) {
     return;
   }
 
-  const formattedFiles: string[] = [];
-  files.forEach((file) => {
-    formattedFiles.push(JSON.stringify(file, null, 2));
-  });
+  const formattedFiles: { image: any[]; video: any[] }[] = posts.map(
+    (post: any) => ({
+      image: post.images || [],
+      video: post.video || [],
+    }),
+  );
 
-  const imageCloud_Id: string[] = [];
-  const videoCloud_Id: string[] = [];
+  const imageCloud_Id = [];
+  const videoCloud_Id = [];
 
   formattedFiles.forEach((file) => {
-    const parsedFile = JSON.parse(file);
-    parsedFile.image.forEach((image) => {
+    file.image.forEach((image: any) => {
       imageCloud_Id.push(image.cloudinaryId);
     });
-    parsedFile.video.forEach((video) => {
+    file.video.forEach((video: any) => {
       videoCloud_Id.push(video.cloudinaryId);
     });
   });
 
-  if (imageCloud_Id || imageCloud_Id.length > 0) {
+  if (imageCloud_Id.length > 0) {
     await Promise.all(
       imageCloud_Id.map(async (cloudId) => {
         await cloudinary.uploader.destroy(cloudId);
@@ -39,7 +66,7 @@ export const cloudDeletePost = async (posts: any) => {
     );
   }
 
-  if (videoCloud_Id || videoCloud_Id.length > 0) {
+  if (videoCloud_Id.length > 0) {
     await Promise.all(
       videoCloud_Id.map(async (cloudId) => {
         await cloudinary.uploader.destroy(cloudId);

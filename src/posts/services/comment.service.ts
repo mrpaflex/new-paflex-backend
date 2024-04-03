@@ -220,6 +220,7 @@ export class CommentService {
     file: Express.Multer.File,
   ) {
     const { replyId, commentId, editText, updateType } = payload;
+    
     if ((!payload || Object.keys(payload).length === 0) && !file) {
       throw new BadRequestException('please provide a value');
     }
@@ -491,27 +492,20 @@ export class CommentService {
   }
 
   async deleteCommentAndReplies(commentId: string) {
-    // Delete comment and associated replies in a single database operation
     await this.deleteCloudinaryAssets(commentId);
     await Promise.all([
       this.commentModel.findOneAndDelete({ _id: commentId }),
       this.replyModel.deleteMany({ commentId: commentId }),
     ]);
-
-    // Delete associated Cloudinary assets
   }
 
   async deleteReply(replyId: string) {
-    // Delete reply
     await this.deleteCloudinaryzReplyAssets(replyId);
 
     await this.replyModel.findOneAndDelete({ _id: replyId });
-
-    // Delete associated Cloudinary assets
   }
 
   async deleteCloudinaryAssets(resourceId: string) {
-    // Fetch resource (comment or reply) to get cloudinary_Id
     const resource = await this.commentModel.findOne({ _id: resourceId });
     if (resource && resource.cloudinary_Id) {
       await cloudinary.uploader.destroy(resource.cloudinary_Id);
@@ -519,7 +513,6 @@ export class CommentService {
   }
 
   async deleteCloudinaryzReplyAssets(resourceId: string) {
-    // Fetch resource (comment or reply) to get cloudinary_Id
     const resource = await this.replyModel.findOne({ _id: resourceId });
     if (resource && resource.cloudinary_Id) {
       await cloudinary.uploader.destroy(resource.cloudinary_Id);

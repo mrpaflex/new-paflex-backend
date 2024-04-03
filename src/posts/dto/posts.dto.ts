@@ -30,8 +30,8 @@ export class ValidateActionDto {
   code: string;
 }
 
-export class DeDTO{
+export class DeDTO {
   @IsArray()
   @IsNotEmpty()
-  ids: string[]
+  ids: string[];
 }

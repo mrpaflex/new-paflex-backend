@@ -21,7 +21,7 @@ import {
 } from '../dto/posts.dto';
 import { PostsDocument } from '../schemas/posts.schema';
 import { UserDocument } from 'src/user/schemas/user.schema';
-import { ReactionDto } from '../dto/reaction.dto';
+import { ReactionDto, UpdateReactionDTO } from '../dto/reaction.dto';
 import { multerOptions } from 'src/common/utils/cloudinary/multer';
 
 @Controller('posts')
@@ -49,15 +49,24 @@ export class PostsController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @UseInterceptors(FilesInterceptor('images', 4, multerOptions))
-  @Patch(':id')
+  @UseInterceptors(FilesInterceptor('files', 4, multerOptions))
+  @Patch('update/:id')
   async update(
     @Param('id') id: string,
     @Body() payload: UpdatePostDto,
-    @CurrentUser() user: any,
-    @UploadedFiles() files: Express.Multer.File,
+    @CurrentUser() user: UserDocument,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    // return await this.postService.update(id, payload, user, files);
+    return await this.postService.updatePost(id, payload, user, files);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('update-reactions')
+  async updateReaction(
+    @Body() payload: UpdateReactionDTO,
+    @CurrentUser() user: UserDocument,
+  ) {
+    return await this.postService.updatePostReaction(payload, user);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -75,13 +84,9 @@ export class PostsController {
   //like post handle
 
   @UseGuards(AuthGuard('jwt'))
-  @Patch('reaction/:id')
-  async React(
-    @Param('id') id: string,
-    @Body() payload: ReactionDto,
-    @CurrentUser() user: UserDocument,
-  ) {
-    return await this.postService.reactToPost(id, payload, user);
+  @Patch('reaction')
+  async React(@Body() payload: ReactionDto, @CurrentUser() user: UserDocument) {
+    return await this.postService.reactToPost(payload, user);
   }
 
   @UseGuards(AuthGuard('jwt'))
