@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {} from '../dto/posts.dto';
 import { UserDocument } from 'src/user/schemas/user.schema';
@@ -17,6 +18,7 @@ import {
 import { ReactToCommentOrReplyDto } from '../dto/reaction.dto';
 import {
   CommentDto,
+  DeleteCommentOrReplyDTO,
   ReplyDto,
   UpdateCommentOrReplyDto,
 } from '../dto/comment.dto';
@@ -158,7 +160,7 @@ export class CommentService {
       );
     }
 
-    await this.updateReplyCommentTotalCount(commentId, replyId, 'inc');
+    await this.updateReplyOrCommentTotalCount(commentId, replyId, 'inc');
 
     return true;
   }
@@ -178,7 +180,7 @@ export class CommentService {
     }
     return reply;
   }
-  async updateReplyCommentTotalCount(
+  async updateReplyOrCommentTotalCount(
     commentId?: string,
     replyId?: string,
     action?: 'inc' | 'dec',
@@ -187,11 +189,11 @@ export class CommentService {
       await this.commentModel.findOneAndUpdate(
         {
           _id: commentId,
-          ...(action === 'dec' && { replyCommentTotalCount: { $gte: 1 } }),
+          ...(action === 'dec' && { replyToCommentTotalCount: { $gte: 1 } }),
         },
         {
           $inc: {
-            replyCommentTotalCount: action === 'inc' ? 1 : -1,
+            replyToCommentTotalCount: action === 'inc' ? 1 : -1,
           },
         },
       );
@@ -201,11 +203,11 @@ export class CommentService {
       await this.replyModel.findOneAndUpdate(
         {
           _id: replyId,
-          ...(action === 'dec' && { replyTotalCount: { $gte: 1 } }),
+          ...(action === 'dec' && { replyToReplyTotalCount: { $gte: 1 } }),
         },
         {
           $inc: {
-            replyTotalCount: action === 'inc' ? 1 : -1,
+            replyToReplyTotalCount: action === 'inc' ? 1 : -1,
           },
         },
       );
@@ -413,5 +415,114 @@ export class CommentService {
     }
 
     return true;
+  }
+
+  async removeCommentOrReply(
+    user: UserDocument,
+    payload: DeleteCommentOrReplyDTO,
+  ) {
+    const { commentId, replyId } = payload;
+
+    // Input Validation
+    if (!commentId && !replyId) {
+      throw new BadRequestException(
+        'Either commentId or replyId must be provided',
+      );
+    }
+
+    if (commentId) {
+      const comment = await this.getCommentById(commentId);
+      // Check authorization for deleting comment
+      await this.authorizeCommentDeletion(user, commentId);
+
+      // Delete comment and associated replies
+      await this.deleteCommentAndReplies(commentId);
+
+      // Update comment count in associated post
+      await this.postService.updateCommentCountInEachPost(
+        comment.postId.toString(),
+        'dec',
+      );
+
+      return 'Comment deleted';
+    }
+
+    if (replyId) {
+      // Check authorization for deleting reply
+      const reply = await this.getReplyById(replyId);
+
+      await this.authorizeReplyDeletion(user, replyId);
+
+      // Delete reply
+      await this.deleteReply(replyId);
+
+      if (reply.replyId) {
+        await this.updateReplyOrCommentTotalCount(
+          '',
+          reply.replyId.toString(),
+          'dec',
+        );
+      }
+
+      if (reply.commentId) {
+        await this.updateReplyOrCommentTotalCount(
+          reply.commentId.toString(),
+          '',
+          'dec',
+        );
+      }
+
+      return 'Reply deleted';
+    }
+  }
+
+  async authorizeCommentDeletion(user: UserDocument, commentId: string) {
+    const comment = await this.getCommentById(commentId);
+    if (comment.userId.toString() !== user._id.toString()) {
+      throw new UnauthorizedException('Not Authorized to delete this comment');
+    }
+  }
+
+  async authorizeReplyDeletion(user: UserDocument, replyId: string) {
+    const reply = await this.getReplyById(replyId);
+    if (reply.userId.toString() !== user._id.toString()) {
+      throw new UnauthorizedException('Not Authorized to delete this reply');
+    }
+  }
+
+  async deleteCommentAndReplies(commentId: string) {
+    // Delete comment and associated replies in a single database operation
+    await this.deleteCloudinaryAssets(commentId);
+    await Promise.all([
+      this.commentModel.findOneAndDelete({ _id: commentId }),
+      this.replyModel.deleteMany({ commentId: commentId }),
+    ]);
+
+    // Delete associated Cloudinary assets
+  }
+
+  async deleteReply(replyId: string) {
+    // Delete reply
+    await this.deleteCloudinaryzReplyAssets(replyId);
+
+    await this.replyModel.findOneAndDelete({ _id: replyId });
+
+    // Delete associated Cloudinary assets
+  }
+
+  async deleteCloudinaryAssets(resourceId: string) {
+    // Fetch resource (comment or reply) to get cloudinary_Id
+    const resource = await this.commentModel.findOne({ _id: resourceId });
+    if (resource && resource.cloudinary_Id) {
+      await cloudinary.uploader.destroy(resource.cloudinary_Id);
+    }
+  }
+
+  async deleteCloudinaryzReplyAssets(resourceId: string) {
+    // Fetch resource (comment or reply) to get cloudinary_Id
+    const resource = await this.replyModel.findOne({ _id: resourceId });
+    if (resource && resource.cloudinary_Id) {
+      await cloudinary.uploader.destroy(resource.cloudinary_Id);
+    }
   }
 }

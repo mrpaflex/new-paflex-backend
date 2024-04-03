@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Patch,
   Post,
   UploadedFile,
@@ -16,6 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ReactToCommentOrReplyDto } from '../dto/reaction.dto';
 import {
   CommentDto,
+  DeleteCommentOrReplyDTO,
   ReplyDto,
   UpdateCommentOrReplyDto,
 } from '../dto/comment.dto';
@@ -65,5 +67,14 @@ export class CommentController {
     @CurrentUser() user: UserDocument,
   ) {
     return await this.commentService.reactToCommentOrReply(payload, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete()
+  async deleteCommentOrReply(
+    @CurrentUser() user: UserDocument,
+    @Body() payload: DeleteCommentOrReplyDTO,
+  ) {
+    return await this.commentService.removeCommentOrReply(user, payload);
   }
 }

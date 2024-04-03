@@ -48,3 +48,13 @@ export class UpdateCommentOrReplyDto extends PartialType(ReplyDto) {
   @IsEnum(PostTypeEnum)
   updateType: string;
 }
+
+export class DeleteCommentOrReplyDTO {
+  @IsOptional()
+  @IsMongoId()
+  replyId: string;
+
+  @IsOptional()
+  @IsMongoId()
+  commentId: string;
+}

@@ -3,6 +3,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
@@ -108,7 +109,7 @@ export class UserService {
     }
 
     if ((await comparedHashedPassword(password, user.password)) === false) {
-      throw new BadRequestException('Password does not match');
+      throw new UnauthorizedException('Password does not match');
     }
 
     if (!user.isAccountVerified) {
@@ -308,6 +309,10 @@ export class UserService {
 
     await user.save();
 
-    return user;
+    const result = await user.save();
+
+    delete result['_doc'].password;
+
+    return result;
   }
 }

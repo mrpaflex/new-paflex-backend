@@ -40,7 +40,7 @@ export class Comment {
   reactionCount: number;
 
   @Prop({ type: Number, default: 0 })
-  replyCommentTotalCount: number;
+  replyToCommentTotalCount: number;
 
   @Prop({ type: [ReactionsType], default: [] })
   commentReactions?: ReactionsType[];

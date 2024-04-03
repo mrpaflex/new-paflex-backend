@@ -41,7 +41,7 @@ export class CommentReply {
   replyReactions?: ReactionsType[];
 
   @Prop({ type: Number, default: 0 })
-  replyTotalCount: number;
+  replyToReplyTotalCount: number;
 
   @Prop({ type: Date, default: Date.now })
   commentAt: Date;
