@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -40,6 +39,7 @@ export class PostsService {
     const { text, postType } = payload;
     let uploadedImagesUrl = [];
     let uploadedVideoUrl = [];
+    let isVideo = false;
 
     if ((!payload || Object.keys(payload).length === 0) && !files) {
       throw new BadRequestException('Cannot submit empty post');
@@ -57,7 +57,7 @@ export class PostsService {
       }
 
       uploadedImagesUrl = await Promise.all(
-        files.map(async (file) => {
+        files.map(async (file: any) => {
           const uploadImage = await cloudinary.uploader.upload(file.path);
           return {
             url: uploadImage.secure_url,
@@ -74,6 +74,7 @@ export class PostsService {
     }
 
     if (postType === PostTypeEnum.Video) {
+      isVideo = true;
       if (!files || files.length === 0) {
         throw new BadRequestException('video cannot be empty');
       }
@@ -84,6 +85,7 @@ export class PostsService {
       uploadedVideoUrl = await Promise.all(
         files.map(async (file) => {
           const uploadVideo = await cloudinary.uploader.upload(file.path);
+
           return {
             url: uploadVideo.secure_url,
             cloudinaryId: uploadVideo.public_id,
@@ -103,6 +105,7 @@ export class PostsService {
       type: postType,
       images: uploadedImagesUrl,
       video: uploadedVideoUrl,
+      isVideo: isVideo,
       creatorId: user._id,
     });
     return createPost;
@@ -110,6 +113,10 @@ export class PostsService {
 
   async getAll(): Promise<PostsDocument[]> {
     return await this.postModel.find();
+  }
+
+  async getAllVideos(): Promise<PostsDocument[]> {
+    return await this.postModel.find({ isVideo: true });
   }
 
   async getById(id: string): Promise<PostsDocument> {
@@ -173,7 +180,7 @@ export class PostsService {
 
     let updatedImagesUrl = [];
     let updatedVideoUrl = [];
-
+    let isVideo = false;
     const postToUpdate = await this.getById(postId);
 
     if (postToUpdate.creatorId.toString() !== user._id.toString()) {
@@ -211,6 +218,7 @@ export class PostsService {
     }
 
     if (postType === PostTypeEnum.Video) {
+      isVideo = true;
       if (!files || files.length === 0) {
         throw new BadRequestException('video cannot be empty');
       }
@@ -244,8 +252,10 @@ export class PostsService {
         video: updatedVideoUrl,
         images: updatedImagesUrl,
         isPostEdited: true,
+        isVideo: isVideo,
         text: text,
       },
+
       {
         new: true,
         runValidators: true,

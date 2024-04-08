@@ -16,7 +16,14 @@ export const multerOptions: MulterOptions = {
 
   fileFilter: (req, file, cb) => {
     try {
-      const allowedFileTypes = ['.jpg', '.jpeg', '.png', '.pdf, mp4, webp'];
+      const allowedFileTypes = [
+        '.jpg',
+        '.jpeg',
+        '.png',
+        '.pdf',
+        '.mp4',
+        '.webp',
+      ];
       const ext = path.extname(file.originalname).toLowerCase();
 
       if (!allowedFileTypes.includes(ext)) {
@@ -28,5 +35,9 @@ export const multerOptions: MulterOptions = {
         'server error while uploading profile',
       );
     }
+  },
+
+  limits: {
+    fileSize: 10000000,
   },
 };

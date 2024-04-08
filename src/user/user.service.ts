@@ -36,12 +36,12 @@ export class UserService {
     private otpService: OtpService,
   ) {}
 
-  async create(req: any, referralId: string) {
+  async create(req: any, referralId: string): Promise<UserDocument> {
     if (referralId) {
       const referredUser = await this.getById(referralId);
 
       if (!referredUser) {
-        return true;
+        return;
       }
       await this.addReferralBonus(referralId);
     }

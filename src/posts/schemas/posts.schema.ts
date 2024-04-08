@@ -23,6 +23,9 @@ export class PostEntity {
   @Prop({ type: Boolean, default: false })
   isPostEdited: boolean;
 
+  @Prop({ type: Boolean, default: false })
+  isVideo: boolean;
+
   @Prop({ type: String, enum: PostType, default: PostType.PUBLIC })
   postType: PostType;
 

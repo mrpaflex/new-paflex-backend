@@ -19,11 +19,16 @@ export class AuthService {
       };
 
       const accessToken = this.jwt.sign(payload);
-      return {
-        Response: `you sign up already your access token is ${accessToken}`,
-      };
+
+      return accessToken;
     }
-    await this.userService.create(req, referralId);
-    return `You just sign up`;
+    const createdUser = await this.userService.create(req, referralId);
+    const payload = {
+      id: createdUser._id,
+      firstName: createdUser.firstName,
+      lastName: createdUser.lastName,
+    };
+    const token = this.jwt.sign(payload);
+    return token;
   }
 }

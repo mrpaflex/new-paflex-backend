@@ -2,6 +2,10 @@
 /dist
 /node_modules
 .env
+file.txt
+error.txt
+/src/common/utils/cloudinary/cloudinary.upload.ts
+/src/common/utils/cloudinary/multer.ts
 
 /keep.txt
 # Logs

@@ -38,9 +38,16 @@ export class PostsController {
   ) {
     return await this.postService.create(payload, user._id, files);
   }
-  @Get()
+
+
+  @Get('findAll')
   async getAll(): Promise<PostsDocument[]> {
     return await this.postService.getAll();
+  }
+
+  @Get('videos')
+  async getAllVideos(): Promise<PostsDocument[]> {
+    return await this.postService.getAllVideos();
   }
 
   @Get(':id')
@@ -59,6 +66,8 @@ export class PostsController {
   ) {
     return await this.postService.updatePost(id, payload, user, files);
   }
+
+
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('update-reactions')

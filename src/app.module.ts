@@ -7,6 +7,7 @@ import { PostsModule } from './posts/posts.module';
 import { MessageModule } from './message/message.module';
 import { OtpModule } from './otp/otp.module';
 import { MailModule } from './mail/mail.module';
+import { ChatsModule } from './websocket/module/chat.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { MailModule } from './mail/mail.module';
     MessageModule,
     OtpModule,
     MailModule,
+    ChatsModule,
   ],
 })
 export class AppModule {}

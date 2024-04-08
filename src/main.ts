@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
 import { ENVIRONMENT } from './common/constant/environmentVariables/environment.var';
+import * as compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,7 +20,17 @@ async function bootstrap() {
       saveUninitialized: false,
     }),
   );
+
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.use(
+    compression({
+      global: true,
+      filter: () => {
+        return true;
+      },
+      threshold: 0,
+    }),
+  );
 
   const PORT = ENVIRONMENT.CONN_PORT.PORT || 3000;
 
