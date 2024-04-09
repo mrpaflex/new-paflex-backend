@@ -32,12 +32,6 @@ export const ENVIRONMENT = {
     ReferralPoint: +process.env.ReferralPoint,
   },
 
-  CLOUDINARY: {
-    cloud_name: process.env.CLOUD_NAME,
-    api_key: process.env.API_KEY,
-    api_secret: process.env.CLOUDINARY_SECRET,
-  },
-
   AWS: {
     accessKeyId: process.env.AWS_ACCESS_ID,
     secretAccessKey: process.env.AWS_ACCESS_SECRET_KEY,
