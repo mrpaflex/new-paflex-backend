@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { PostType } from 'src/common/constant/enum/enum';
 import { User } from 'src/user/schemas/user.schema';
-import { PostImage, PostVideo, ReactionsType } from './sub-posts.schema';
+import { FileDB, ReactionsType } from './sub-posts.schema';
 import { PostTypeEnum } from 'src/common/enum/post.reactions.enum';
 
 export type PostsDocument = PostEntity & Document;
@@ -14,11 +14,11 @@ export class PostEntity {
   @Prop({ type: String })
   text?: string;
 
-  @Prop({ type: [PostImage], default: [] })
-  images?: PostImage[];
+  @Prop({ type: [FileDB], default: [] })
+  images?: FileDB[];
 
-  @Prop({ type: [PostVideo], default: [] })
-  video?: PostVideo[];
+  @Prop({ type: [FileDB], default: [] })
+  video?: FileDB[];
 
   @Prop({ type: Boolean, default: false })
   isPostEdited: boolean;

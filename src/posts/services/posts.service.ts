@@ -16,13 +16,12 @@ import {
 } from '../dto/posts.dto';
 import { ReactionDto, UpdateReactionDTO } from '../dto/reaction.dto';
 import { OtpService } from 'src/otp/otp.service';
-import { cloudinary } from 'src/common/utils/cloudinary/cloudinary';
 import { PostTypeEnum } from 'src/common/enum/post.reactions.enum';
-import * as path from 'path';
+
 import {
-  cloudDeletePost,
-  cloudDeletePostImageOrVideo,
-} from 'src/common/utils/cloudinary/cloudinary.delete';
+  deletePostFile,
+  uploadFiles,
+} from 'src/common/utils/aws-bucket/file-aws-bucket';
 
 @Injectable()
 export class PostsService {
@@ -41,6 +40,7 @@ export class PostsService {
     let uploadedVideoUrl = [];
     let isVideo = false;
 
+    const validVideoType = ['video/mp4'];
     if ((!payload || Object.keys(payload).length === 0) && !files) {
       throw new BadRequestException('Cannot submit empty post');
     }
@@ -58,16 +58,17 @@ export class PostsService {
 
       uploadedImagesUrl = await Promise.all(
         files.map(async (file: any) => {
-          const uploadImage = await cloudinary.uploader.upload(file.path);
+          const uploadImage = await uploadFiles(file);
+
           return {
-            url: uploadImage.secure_url,
-            cloudinaryId: uploadImage.public_id,
+            location: uploadImage.Location,
+            key: uploadImage.Key,
           };
         }),
       );
 
       for (const image of uploadedImagesUrl) {
-        if (!image.url) {
+        if (!image.location) {
           throw new BadRequestException('Error while uploading image');
         }
       }
@@ -82,19 +83,23 @@ export class PostsService {
         throw new BadRequestException('Only one video can be uploaded');
       }
 
+      if (!validVideoType.includes(files[0].mimetype)) {
+        throw new BadRequestException('Invalid video type');
+      }
+
       uploadedVideoUrl = await Promise.all(
         files.map(async (file) => {
-          const uploadVideo = await cloudinary.uploader.upload(file.path);
+          const uploadVideo = await uploadFiles(file);
 
           return {
-            url: uploadVideo.secure_url,
-            cloudinaryId: uploadVideo.public_id,
+            location: uploadVideo.Location,
+            key: uploadVideo.Key,
           };
         }),
       );
 
       for (const video of uploadedVideoUrl) {
-        if (!video.url) {
+        if (!video.location) {
           throw new BadRequestException('Error while uploading video');
         }
       }
@@ -137,15 +142,22 @@ export class PostsService {
     if (user._id.toString() !== post.creatorId.toString()) {
       return;
     }
-    await this.otpService.sendOtp(user.email);
 
-    return {
-      Response: `kindly check email to verify your action`,
-    };
+    if (post.video && post.video.length > 0) {
+      await deletePostFile(post.video);
+    }
+
+    if (post.images && post.images.length > 0) {
+      await deletePostFile(post.images);
+    }
+
+    await this.postModel.findByIdAndDelete(id, { new: true });
+
+    return 'deleted';
   }
 
   async MyPosts(user: UserDocument) {
-    const posts = await this.postModel.find({ user: user });
+    const posts = await this.postModel.find({ creatorId: user._id });
     if (!posts) {
       return;
     }
@@ -158,12 +170,21 @@ export class PostsService {
       _id: { $in: ids },
       creatorId: user._id,
     });
-
-    await cloudDeletePost(posts);
+    posts.map(async (post) => {
+      const images = post.images;
+      const video = post.video;
+      if (images && images.length > 0) {
+        await deletePostFile(images);
+      }
+      if (video && video.length > 0) {
+        await deletePostFile(video);
+      }
+      return;
+    });
 
     await this.postModel.deleteMany({ _id: { $in: ids }, creatorId: user._id });
 
-    return 'done';
+    return;
   }
 
   async updatePost(
@@ -181,6 +202,8 @@ export class PostsService {
     let updatedImagesUrl = [];
     let updatedVideoUrl = [];
     let isVideo = false;
+    const validVideoType = ['video/mp4'];
+
     const postToUpdate = await this.getById(postId);
 
     if (postToUpdate.creatorId.toString() !== user._id.toString()) {
@@ -198,21 +221,29 @@ export class PostsService {
         throw new BadRequestException('Image cannot be empty');
       }
 
-      await cloudDeletePostImageOrVideo(postToUpdate);
+      if (postToUpdate.images && postToUpdate.images.length > 0) {
+        await deletePostFile(postToUpdate.images);
+        return;
+      }
+
+      if (postToUpdate.video && postToUpdate.video.length > 0) {
+        await deletePostFile(postToUpdate.video);
+        return;
+      }
 
       updatedImagesUrl = await Promise.all(
         files.map(async (file) => {
-          const uploadImage = await cloudinary.uploader.upload(file.path);
+          const uploadImage = await uploadFiles(file);
           return {
-            url: uploadImage.secure_url,
-            cloudinaryId: uploadImage.public_id,
+            location: uploadImage.Location,
+            key: uploadImage.Key,
           };
         }),
       );
 
       for (const image of updatedImagesUrl) {
-        if (!image.url) {
-          throw new BadRequestException('Error while uploading image');
+        if (!image.location) {
+          throw new BadRequestException('Error while updating image');
         }
       }
     }
@@ -225,22 +256,33 @@ export class PostsService {
       if (files?.length > 1) {
         throw new BadRequestException('Only one video can be uploaded');
       }
+      if (!validVideoType.includes(files[0].mimetype)) {
+        throw new BadRequestException('Invalid video type');
+      }
 
-      await cloudDeletePostImageOrVideo(postToUpdate);
+      if (postToUpdate.images && postToUpdate.images.length > 0) {
+        await deletePostFile(postToUpdate.images);
+        return;
+      }
+
+      if (postToUpdate.video && postToUpdate.video.length > 0) {
+        await deletePostFile(postToUpdate.video);
+        return;
+      }
 
       updatedVideoUrl = await Promise.all(
         files.map(async (file) => {
-          const uploadVideo = await cloudinary.uploader.upload(file.path);
+          const uploadVideo = await uploadFiles(file);
           return {
-            url: uploadVideo.secure_url,
-            cloudinaryId: uploadVideo.public_id,
+            location: uploadVideo.Location,
+            key: uploadVideo.Key,
           };
         }),
       );
 
       for (const video of updatedVideoUrl) {
-        if (!video.url) {
-          throw new BadRequestException('Error while uploading video');
+        if (!video.location) {
+          throw new BadRequestException('Error while updating video');
         }
       }
     }
@@ -299,38 +341,6 @@ export class PostsService {
     }
 
     return true;
-  }
-
-  async validateDeletePostAction(
-    id: string,
-    payload: ValidateActionDto,
-    user: UserDocument,
-  ) {
-    const { email, code } = payload;
-    const post = await this.postModel.findById(id);
-
-    if (post.creatorId.toString() != user._id.toString()) {
-      throw new UnauthorizedException('Not authorized');
-    }
-    await this.otpService.verifyOtp(code, email);
-
-    const images = post.images;
-    const video = post.video;
-
-    if (images) {
-      images.map(async (image) => {
-        await cloudinary.uploader.destroy(image.cloudinaryId);
-      });
-    }
-
-    if (video) {
-      images.map(async (vid) => {
-        await cloudinary.uploader.destroy(vid.cloudinaryId);
-      });
-    }
-
-    await this.postModel.findByIdAndDelete(id, { new: true });
-    return 'post deleted';
   }
 
   async updateCommentCountInEachPost(postId: string, action: 'inc' | 'dec') {

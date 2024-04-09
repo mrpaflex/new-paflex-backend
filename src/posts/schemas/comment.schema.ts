@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { PostImage, PostVideo, ReactionsType } from './sub-posts.schema';
+import { FileDB, ReactionsType } from './sub-posts.schema';
 import { PostTypeEnum } from 'src/common/enum/post.reactions.enum';
 export type CommentDocument = Comment & Document;
 @Schema()
@@ -24,14 +24,11 @@ export class Comment {
   @Prop({ type: Boolean, default: false })
   isCommentEdited: boolean;
 
-  @Prop({ type: String })
-  image?: string;
+  @Prop({ type: [FileDB], default: [] })
+  image?: FileDB[];
 
-  @Prop({ type: String })
-  video?: string;
-
-  @Prop({ type: String })
-  cloudinary_Id?: string;
+  @Prop({ type: [FileDB], default: [] })
+  video?: FileDB[];
 
   @Prop({ type: Boolean, default: false })
   isCommentRestricted: boolean;

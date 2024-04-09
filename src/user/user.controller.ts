@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -73,6 +74,16 @@ export class UserController {
   ) {
     return await this.userService.ProfilePhoto(user, files);
   }
+
+  // @UseGuards(AuthGuard('jwt'))
+  // @UseInterceptors(FilesInterceptor('file', 1, multerOptions))
+  // @Patch('profile-photo')
+  // async ProfilePhoto(
+  //   @CurrentUser() user: any,
+  //   @UploadedFiles() files: Array<Express.Multer.File>,
+  // ) {
+  //   return await this.userService.ProfilePhoto(user, files);
+  // }
 
   @UseGuards(AuthGuard('jwt'))
   @Delete('account')

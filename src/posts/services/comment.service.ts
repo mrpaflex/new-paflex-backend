@@ -23,7 +23,10 @@ import {
   UpdateCommentOrReplyDto,
 } from '../dto/comment.dto';
 import { PostTypeEnum } from 'src/common/enum/post.reactions.enum';
-import { cloudinary } from 'src/common/utils/cloudinary/cloudinary';
+import {
+  deletePostFile,
+  uploadFiles,
+} from 'src/common/utils/aws-bucket/file-aws-bucket';
 
 @Injectable()
 export class CommentService {
@@ -43,9 +46,8 @@ export class CommentService {
 
     await this.postService.getById(postId);
 
-    let uploadedImageUrl;
-    let uploadedVideo;
-    let cloud_id;
+    let uploadedImageUrl = [];
+    let uploadedVideo = [];
 
     if ((!payload || Object.keys(payload).length === 0) && !file) {
       throw new BadRequestException('Can not submit empty comment');
@@ -62,10 +64,12 @@ export class CommentService {
         throw new BadRequestException('file can not be empty');
       }
 
-      const result = await cloudinary.uploader.upload(file.path);
+      const result = await uploadFiles(file);
 
-      uploadedVideo = result.secure_url;
-      cloud_id = result.public_id;
+      uploadedVideo.push({
+        location: result.Location,
+        key: result.Key,
+      });
     }
 
     if (commentType === PostTypeEnum.Image) {
@@ -73,9 +77,11 @@ export class CommentService {
         throw new BadRequestException('file can not be empty');
       }
 
-      const result = await cloudinary.uploader.upload(file.path);
-      uploadedImageUrl = result.secure_url;
-      cloud_id = result.public_id;
+      const result = await uploadFiles(file);
+      uploadedImageUrl.push({
+        location: result.Location,
+        key: result.Key,
+      });
     }
 
     const createComment = await this.commentModel.create({
@@ -83,7 +89,6 @@ export class CommentService {
       commentType,
       video: uploadedVideo,
       image: uploadedImageUrl,
-      cloudinary_Id: cloud_id,
       postId,
       userId: user._id,
     });
@@ -118,19 +123,18 @@ export class CommentService {
       }
     }
 
-    let uploadedImageUrl;
-    let uploadedVideo;
-    let cloud_id;
+    let uploadedImageUrl = [];
+    let uploadedVideo = [];
 
     if (replyType === PostTypeEnum.Video) {
       if (!file) {
         throw new BadRequestException('file can not be empty');
       }
-
-      const result = await cloudinary.uploader.upload(file.path);
-
-      uploadedVideo = result.secure_url;
-      cloud_id = result.public_id;
+      const result = await uploadFiles(file);
+      uploadedVideo.push({
+        location: result.Location,
+        key: result.Key,
+      });
     }
 
     if (replyType === PostTypeEnum.Image) {
@@ -138,15 +142,16 @@ export class CommentService {
         throw new BadRequestException('comment can not be empty');
       }
 
-      const result = await cloudinary.uploader.upload(file.path);
-      uploadedImageUrl = result.secure_url;
-      cloud_id = result.public_id;
+      const result = await uploadFiles(file);
+      uploadedImageUrl.push({
+        location: result.Location,
+        key: result.Key,
+      });
     }
 
     const createReply = await this.replyModel.create({
       video: uploadedVideo,
       image: uploadedImageUrl,
-      cloudinary_Id: cloud_id,
       userId: user._id,
       replyId,
       reply,
@@ -220,7 +225,7 @@ export class CommentService {
     file: Express.Multer.File,
   ) {
     const { replyId, commentId, editText, updateType } = payload;
-    
+
     if ((!payload || Object.keys(payload).length === 0) && !file) {
       throw new BadRequestException('please provide a value');
     }
@@ -228,9 +233,8 @@ export class CommentService {
     if (commentId) {
       const comment = await this.getCommentById(commentId);
 
-      let updatedImageUrl;
-      let updatedVideoUrl;
-      let updateCloud_Id;
+      let updatedImageUrl = [];
+      let updatedVideoUrl = [];
 
       if (updateType === PostTypeEnum.Text) {
         if (!editText) {
@@ -243,17 +247,27 @@ export class CommentService {
           throw new BadRequestException('image can not be empty');
         }
 
+        if (comment.image && comment.image.length > 0) {
+          await deletePostFile(comment.image);
+          return;
+        }
+
+        if (comment.video && comment.video.length > 0) {
+          await deletePostFile(comment.video);
+          return;
+        }
+
         await this.commentModel.findOneAndUpdate(
           { _id: commentId },
-          { video: null },
+          { video: [] },
         );
 
-        await cloudinary.uploader.destroy(comment.cloudinary_Id);
+        const result = await uploadFiles(file);
 
-        const result = await cloudinary.uploader.upload(file.path);
-
-        updatedImageUrl = result.secure_url;
-        updateCloud_Id = result.public_id;
+        updatedImageUrl.push({
+          location: result.Location,
+          key: result.Key,
+        });
       }
 
       if (updateType === PostTypeEnum.Video) {
@@ -261,15 +275,27 @@ export class CommentService {
           throw new BadRequestException('video can not be empty');
         }
 
+        if (comment.image && comment.image.length > 0) {
+          await deletePostFile(comment.image);
+          return;
+        }
+
+        if (comment.video && comment.video.length > 0) {
+          await deletePostFile(comment.video);
+          return;
+        }
+
         await this.commentModel.findOneAndUpdate(
           { _id: commentId },
-          { image: null },
+          { image: [] },
         );
-        await cloudinary.uploader.destroy(comment.cloudinary_Id);
 
-        const result = await cloudinary.uploader.upload(file.path);
-        updatedVideoUrl = result.secure_url;
-        updateCloud_Id = result.public_id;
+        const result = await uploadFiles(file);
+
+        updatedVideoUrl.push({
+          location: result.Location,
+          key: result.Key,
+        });
       }
 
       const updatedComment = await this.commentModel.findOneAndUpdate(
@@ -279,7 +305,6 @@ export class CommentService {
           commentType: updateType,
           video: updatedVideoUrl,
           image: updatedImageUrl,
-          cloudinary_Id: updateCloud_Id,
           isCommentEdited: true,
         },
         { new: true, runValidators: true },
@@ -291,9 +316,8 @@ export class CommentService {
     if (replyId) {
       const reply = await this.getReplyById(replyId);
 
-      let updatedImageUrl;
-      let updatedVideoUrl;
-      let updateCloud_Id;
+      let updatedImageUrl = [];
+      let updatedVideoUrl = [];
 
       if (updateType === PostTypeEnum.Text) {
         if (!editText) {
@@ -306,15 +330,23 @@ export class CommentService {
           throw new BadRequestException('image can not be empty');
         }
 
-        await this.replyModel.findOneAndUpdate(
-          { _id: replyId },
-          { video: null },
-        );
-        await cloudinary.uploader.destroy(reply.cloudinary_Id);
+        if (reply.image && reply.image.length > 0) {
+          await deletePostFile(reply.image);
+          return;
+        }
 
-        const result = await cloudinary.uploader.upload(file.path);
-        updatedImageUrl = result.secure_url;
-        updateCloud_Id = result.public_id;
+        if (reply.video && reply.video.length > 0) {
+          await deletePostFile(reply.video);
+          return;
+        }
+
+        await this.replyModel.findOneAndUpdate({ _id: replyId }, { video: [] });
+
+        const result = await uploadFiles(file);
+        updatedImageUrl.push({
+          location: result.Location,
+          key: result.Key,
+        });
       }
 
       if (updateType === PostTypeEnum.Video) {
@@ -322,16 +354,27 @@ export class CommentService {
           throw new BadRequestException('video can not be empty');
         }
 
+        if (reply.image && reply.image.length > 0) {
+          await deletePostFile(reply.image);
+          return;
+        }
+
+        if (reply.video && reply.video.length > 0) {
+          await deletePostFile(reply.video);
+          return;
+        }
+
         await this.replyModel.findOneAndUpdate(
           { _id: commentId },
-          { image: null },
+          { image: [] },
         );
-        await cloudinary.uploader.destroy(reply.cloudinary_Id);
 
-        const result = await cloudinary.uploader.upload(file.path);
+        const result = await uploadFiles(file);
 
-        updatedVideoUrl = result.secure_url;
-        updateCloud_Id = result.public_id;
+        updatedVideoUrl.push({
+          location: result.Location,
+          key: result.Key,
+        });
       }
 
       const updatedReply = await this.replyModel.findOneAndUpdate(
@@ -341,7 +384,6 @@ export class CommentService {
           replyType: updateType,
           video: updatedVideoUrl,
           image: updatedImageUrl,
-          cloudinary_Id: updateCloud_Id,
           isReplyEdited: true,
         },
         { new: true, runValidators: true },
@@ -492,7 +534,8 @@ export class CommentService {
   }
 
   async deleteCommentAndReplies(commentId: string) {
-    await this.deleteCloudinaryAssets(commentId);
+    await this.deleteAwsAssets(commentId);
+
     await Promise.all([
       this.commentModel.findOneAndDelete({ _id: commentId }),
       this.replyModel.deleteMany({ commentId: commentId }),
@@ -500,22 +543,34 @@ export class CommentService {
   }
 
   async deleteReply(replyId: string) {
-    await this.deleteCloudinaryzReplyAssets(replyId);
+    await this.deleteAwsReplyAssets(replyId);
 
     await this.replyModel.findOneAndDelete({ _id: replyId });
   }
 
-  async deleteCloudinaryAssets(resourceId: string) {
-    const resource = await this.commentModel.findOne({ _id: resourceId });
-    if (resource && resource.cloudinary_Id) {
-      await cloudinary.uploader.destroy(resource.cloudinary_Id);
+  async deleteAwsAssets(resourceId: string) {
+    const resource = await this.getCommentById(resourceId);
+    if (resource.image && resource.image.length > 0) {
+      await deletePostFile(resource.image);
+      return;
+    }
+
+    if (resource.video && resource.video.length > 0) {
+      await deletePostFile(resource.video);
+      return;
     }
   }
 
-  async deleteCloudinaryzReplyAssets(resourceId: string) {
-    const resource = await this.replyModel.findOne({ _id: resourceId });
-    if (resource && resource.cloudinary_Id) {
-      await cloudinary.uploader.destroy(resource.cloudinary_Id);
+  async deleteAwsReplyAssets(resourceId: string) {
+    const resource = await this.getReplyById(resourceId);
+    if (resource.image && resource.image.length > 0) {
+      await deletePostFile(resource.image);
+      return;
+    }
+
+    if (resource.video && resource.video.length > 0) {
+      await deletePostFile(resource.video);
+      return;
     }
   }
 }

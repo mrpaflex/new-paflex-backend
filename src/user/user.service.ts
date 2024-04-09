@@ -21,11 +21,14 @@ import { OtpService } from 'src/otp/otp.service';
 import { generateOtpCode } from 'src/common/constant/generateCode/random.code';
 import { Twilio } from 'twilio';
 import { ENVIRONMENT } from 'src/common/constant/environmentVariables/environment.var';
-import { cloudinary } from 'src/common/utils/cloudinary/cloudinary';
 import {
   comparedHashedPassword,
   hashPassword,
 } from 'src/common/utils/hashed/password.bcrypt';
+import {
+  deletePostFile,
+  uploadFiles,
+} from 'src/common/utils/aws-bucket/file-aws-bucket';
 
 @Injectable()
 export class UserService {
@@ -163,18 +166,27 @@ export class UserService {
   }
 
   async ProfilePhoto(user: UserDocument, file: Express.Multer.File) {
+    let profilePhoto = [];
     const userId = user._id.toString();
     if (!file) {
       throw new BadRequestException('you can not upload empty profile');
     }
 
-    const result = await cloudinary.uploader.upload(file.path);
+    if (user.profilePhoto && user.profilePhoto.length > 0) {
+      await deletePostFile(user.profilePhoto);
+    }
+
+    const result = await uploadFiles(file);
+
+    profilePhoto.push({
+      location: result.Location,
+      key: result.Key,
+    });
 
     await this.userModel.findByIdAndUpdate(
       userId,
       {
-        profilePicture: result.secure_url,
-        cloudinary_id: result.public_id,
+        profilePhoto: profilePhoto,
       },
       { new: true },
     );
@@ -192,7 +204,9 @@ export class UserService {
       await this.postService.deleteMyPosts(postIds, user);
     }
 
-    await cloudinary.uploader.destroy(user.cloudinary_id);
+    if (user.profilePhoto && user.profilePhoto.length > 0) {
+      await deletePostFile(user.profilePhoto);
+    }
 
     await this.userModel.findByIdAndDelete(userId, { new: true });
 
@@ -202,28 +216,18 @@ export class UserService {
   async removeProfilePhoto(user: UserDocument) {
     const userId = user._id.toString();
 
-    const image = user.profilePicture;
-    if (!image) {
+    const profilePhoto = user.profilePhoto;
+
+    if (!profilePhoto || profilePhoto.length === 0) {
       return;
     }
 
-    const cloudId = user.cloudinary_id;
-
-    if (cloudId) {
-      try {
-        await cloudinary.uploader.destroy(cloudId);
-      } catch (error) {
-        throw new InternalServerErrorException(
-          'error while removing profile picture',
-        );
-      }
-    }
+    await deletePostFile(profilePhoto);
 
     await this.userModel.findByIdAndUpdate(
       userId,
       {
-        profilePicture: null,
-        cloudinary_id: null,
+        profilePhoto: [],
       },
       { new: true },
     );

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { Interested, UserType } from 'src/common/constant/enum/enum';
+import { Photo } from './sub-user.schema';
 
 export type UserDocument = User & Document;
 @Schema({ timestamps: true })
@@ -17,11 +18,16 @@ export class User {
   @Prop({ type: String })
   lastName?: string;
 
-  @Prop()
-  profilePicture?: string;
+  @Prop({ type: [Photo], default: [] })
+  profilePhoto?: Photo[];
 
-  @Prop()
-  cloudinary_id?: string;
+  // @Prop()
+  // profilePicture?: string;
+
+  // // @Prop()
+  // // cloudinary_id?: string;
+  // @Prop()
+  // key?: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   referredBy?: mongoose.Types.ObjectId;

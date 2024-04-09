@@ -16,19 +16,11 @@ export class ReactionsType {
 }
 
 @Schema()
-export class PostImage {
+export class FileDB {
   @Prop()
-  url: string;
+  location: string;
 
   @Prop()
-  cloudinaryId: string;
+  key: string;
 }
 
-@Schema()
-export class PostVideo {
-  @Prop()
-  url: string;
-
-  @Prop()
-  cloudinaryId: string;
-}

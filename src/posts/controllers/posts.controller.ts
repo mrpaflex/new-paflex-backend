@@ -98,13 +98,5 @@ export class PostsController {
     return await this.postService.reactToPost(payload, user);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('validate-delete/:id')
-  async validateOtpAction(
-    @Param('id') id: string,
-    @CurrentUser() user: UserDocument,
-    @Body() payload: ValidateActionDto,
-  ) {
-    return await this.postService.validateDeletePostAction(id, payload, user);
-  }
+
 }

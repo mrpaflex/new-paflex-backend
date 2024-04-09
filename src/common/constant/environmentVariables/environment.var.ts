@@ -38,6 +38,13 @@ export const ENVIRONMENT = {
     api_secret: process.env.CLOUDINARY_SECRET,
   },
 
+  AWS: {
+    accessKeyId: process.env.AWS_ACCESS_ID,
+    secretAccessKey: process.env.AWS_ACCESS_SECRET_KEY,
+    Bucket: process.env.AWS_BUCKET_FOLDER_NAME,
+    BucketName: process.env.AWS_BUCKET_NAME,
+  },
+
   CONN_PORT: {
     PORT: process.env.PORT,
     SESSION_SECRET: process.env.SESSION_SECRET,
