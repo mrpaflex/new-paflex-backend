@@ -1,5 +1,5 @@
 import { S3 } from 'aws-sdk';
-import * as sharp from 'sharp';
+//import * as sharp from 'sharp';
 import { ENVIRONMENT } from 'src/common/constant/environmentVariables/environment.var';
 import * as fs from 'fs';
 
@@ -17,15 +17,15 @@ export const uploadFiles = async (files: any) => {
 
   const fileBuffer = fs.readFileSync(file.path);
 
-  const resizedImageBuffer = await sharp(fileBuffer)
-    .resize(80)
-    .webp({ quality: 80 })
-    .toBuffer();
+  // const resizedImageBuffer = await sharp(fileBuffer)
+  //   .resize(80)
+  //   .webp({ quality: 80 })
+  //   .toBuffer();
 
   const params = {
     Bucket: ENVIRONMENT.AWS.Bucket,
     Key: file.filename,
-    Body: resizedImageBuffer,
+    Body: fileBuffer,
   };
 
   return await s3.upload(params).promise();
