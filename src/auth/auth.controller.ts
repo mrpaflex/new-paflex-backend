@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards, Session } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
@@ -9,18 +9,14 @@ export class AuthController {
 
   @Get()
   @UseGuards(AuthGuard('google'))
-  async googleAuth(
-    @Req() request: Request,
-    @Session() session: Record<string, any>,
-  ) {}
+  async googleAuth(@Req() request: Request) {}
 
-  @Get('redirect')
+  @Get('redirect/:referralId?')
   @UseGuards(AuthGuard('google'))
   async create(
     @Req() request: Request,
-    @Session() session: Record<string, any>,
+    @Param('referralId') referralId: string,
   ) {
-    const referralId = session.referralId;
     return this.authService.create(request, referralId);
   }
 }
