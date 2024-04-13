@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -19,8 +18,9 @@ import { JwtService } from '@nestjs/jwt';
 import { PostsService } from 'src/posts/services/posts.service';
 import { OtpService } from 'src/otp/otp.service';
 import { generateOtpCode } from 'src/common/constant/generateCode/random.code';
-import { Twilio } from 'twilio';
+//import { Twilio } from 'twilio';
 import { ENVIRONMENT } from 'src/common/constant/environmentVariables/environment.var';
+import { OtpType } from '../otp/enum/otp.enum';
 import {
   comparedHashedPassword,
   hashPassword,
@@ -66,10 +66,6 @@ export class UserService {
     payload: CreateUserDto,
     referralId?: string | undefined,
   ) {
-    const client = new Twilio(
-      ENVIRONMENT.TWILLO.account_id,
-      ENVIRONMENT.TWILLO.authToken,
-    );
     const { phoneNumber } = payload;
 
     const userExist = await this.userModel.findOne({ phoneNumber });
@@ -82,24 +78,18 @@ export class UserService {
       await this.getById(referralId);
     }
 
-    await this.userModel.create({
+    const createdUser = await this.userModel.create({
       phoneNumber,
       referredBy: referralId,
     });
 
     const code = generateOtpCode;
 
-    await this.otpService.sendOtp('', phoneNumber);
-
-    const msg = await client.messages.create({
-      body: `your verification code is ${code}`,
-      from: ENVIRONMENT.TWILLO.FROM,
-      to: `${phoneNumber}`,
+    await this.otpService.sendOtp({
+      email: createdUser.email,
+      phoneNumber: phoneNumber,
+      type: OtpType.PHONE_NUMBER_VERIFICATION,
     });
-
-    if (!msg) {
-      throw new InternalServerErrorException('Can not proceed');
-    }
 
     return `verify your account`;
   }
@@ -318,5 +308,16 @@ export class UserService {
     delete result['_doc'].password;
 
     return result;
+  }
+
+  async findUserByPhoneNumberOrEmail(email: string, phoneNumber: string) {
+    const user = await this.userModel.findOne({
+      $or: [{ email: email }, { phoneNumber: phoneNumber }],
+    });
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+
+    return user;
   }
 }

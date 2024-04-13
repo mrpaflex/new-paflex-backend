@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { OtpTypeEnum } from '../enum/otp.enum';
-import mongoose, { Document } from 'mongoose';
+import { Document } from 'mongoose';
 
 export type OtpDocument = Otp & Document;
 @Schema({ expires: 2000 })

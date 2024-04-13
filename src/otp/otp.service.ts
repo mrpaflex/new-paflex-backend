@@ -6,10 +6,12 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Otp, OtpDocument } from './schemas/otp.schema';
 import { Model } from 'mongoose';
-import { CreateOtpDto } from './dto/otp.dto';
+import { CreateOtpDto, SendOtpDto } from './dto/otp.dto';
 import { generateOtpCode } from 'src/common/constant/generateCode/random.code';
 import { MailService } from 'src/mail/mail.service';
 import { ConstantMessage } from 'src/common/constant/message/msg.response';
+import { OtpType } from './enum/otp.enum';
+import { TwilioSms } from 'src/common/constant/twillio.sms';
 
 @Injectable()
 export class OtpService {
@@ -30,25 +32,42 @@ export class OtpService {
     return otp;
   }
 
-  async sendOtp(email?: string, phoneNumber?: string): Promise<any> {
+  async sendOtp(payload: SendOtpDto): Promise<any> {
+    const { email, phoneNumber, type } = payload;
     await this.otpModel.findOne({ email, phoneNumber });
 
     const code = generateOtpCode;
 
-    let template = await ConstantMessage.template(code);
-    let subject = ConstantMessage.subject;
+    let template;
+    let subject;
+
+    if (type === OtpType.PHONE_NUMBER_VERIFICATION) {
+      template = await ConstantMessage.AccountVerificationTemplate(code);
+      subject = ConstantMessage.subject;
+    }
+    if (type === OtpType.RESET_PASSWORD) {
+      template = await ConstantMessage.ResetPasswordTemplate(code);
+      subject = ConstantMessage.subject;
+    }
 
     const otp = await this.createOtp({
       email,
       code,
       phoneNumber,
     });
+
     if (!otp) {
       throw new InternalServerErrorException('error while generating otp');
     }
+
     if (email) {
       await this.mailService.sendEmail(email, subject, template);
     }
+
+    if (phoneNumber) {
+      await TwilioSms(phoneNumber, template);
+    }
+    return 'otp sent';
   }
 
   async validateOtp(code: string, email?: string, phoneNumber?: string) {

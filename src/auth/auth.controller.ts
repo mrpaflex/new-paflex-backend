@@ -1,7 +1,8 @@
-import { Controller, Get, Req, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards, Param, Body, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
+import { RequestOtpDto } from 'src/otp/dto/otp.dto';
 
 @Controller('google')
 export class AuthController {
@@ -18,5 +19,10 @@ export class AuthController {
     @Param('referralId') referralId: string,
   ) {
     return this.authService.create(request, referralId);
+  }
+
+   @Post('request-otp')
+  async requestOtp(@Body() payload: RequestOtpDto) {
+    return await this.authService.requestOtp(payload)
   }
 }

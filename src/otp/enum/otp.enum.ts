@@ -1,4 +1,5 @@
-export enum OtpTypeEnum {
-  RESET_PASSWORD = 'RESET_PASSWORD',
-  VERIFY_EMAIL = 'VERIFY_EMAIL',
+
+export enum OtpType {
+  'PHONE_NUMBER_VERIFICATION' = 'Phone Number Verification',
+  'RESET_PASSWORD' = 'Reset Password',
 }

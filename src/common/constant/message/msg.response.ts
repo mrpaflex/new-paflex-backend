@@ -1,6 +1,10 @@
 export const ConstantMessage = {
-  template: async (code: number) => {
-    return `you want to delete your post, kindly use the code ${code} to confirmed your action`;
+  AccountVerificationTemplate: async (code: number) => {
+    return `Kindly use the code below to activate your account ${code}`;
+  },
+
+  ResetPasswordTemplate: async (code: number) => {
+    return `Verify your action to reset your password ${code}`;
   },
 
   subject: `Action Required`,
