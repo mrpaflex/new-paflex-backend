@@ -21,14 +21,6 @@ export class User {
   @Prop({ type: [Photo], default: [] })
   profilePhoto?: Photo[];
 
-  // @Prop()
-  // profilePicture?: string;
-
-  // // @Prop()
-  // // cloudinary_id?: string;
-  // @Prop()
-  // key?: string;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   referredBy?: mongoose.Types.ObjectId;
 

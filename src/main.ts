@@ -5,11 +5,13 @@ import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
 import { ENVIRONMENT } from './common/constant/environmentVariables/environment.var';
 import * as compression from 'compression';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();
+  app.use(helmet());
 
   app.use(cookieParser());
 

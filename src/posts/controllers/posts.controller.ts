@@ -14,11 +14,7 @@ import { PostsService } from '../services/posts.service';
 import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from 'src/auth/decorators/loggedIn-user.decorator';
-import {
-  CreatePostDto,
-  UpdatePostDto,
-  ValidateActionDto,
-} from '../dto/posts.dto';
+import { CreatePostDto, UpdatePostDto } from '../dto/posts.dto';
 import { PostsDocument } from '../schemas/posts.schema';
 import { UserDocument } from 'src/user/schemas/user.schema';
 import { ReactionDto, UpdateReactionDTO } from '../dto/reaction.dto';
@@ -38,7 +34,6 @@ export class PostsController {
   ) {
     return await this.postService.create(payload, user._id, files);
   }
-
 
   @Get('findAll')
   async getAll(): Promise<PostsDocument[]> {
@@ -66,8 +61,6 @@ export class PostsController {
   ) {
     return await this.postService.updatePost(id, payload, user, files);
   }
-
-
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('update-reactions')
@@ -97,6 +90,4 @@ export class PostsController {
   async React(@Body() payload: ReactionDto, @CurrentUser() user: UserDocument) {
     return await this.postService.reactToPost(payload, user);
   }
-
-
 }

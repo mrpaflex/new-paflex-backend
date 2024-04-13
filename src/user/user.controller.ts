@@ -24,6 +24,7 @@ import { CurrentUser } from 'src/auth/decorators/loggedIn-user.decorator';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import { multerOptions } from 'src/common/utils/cloudinary/multer';
+import { Express } from 'express';
 
 @Controller('user')
 export class UserController {
@@ -74,16 +75,6 @@ export class UserController {
   ) {
     return await this.userService.ProfilePhoto(user, files);
   }
-
-  // @UseGuards(AuthGuard('jwt'))
-  // @UseInterceptors(FilesInterceptor('file', 1, multerOptions))
-  // @Patch('profile-photo')
-  // async ProfilePhoto(
-  //   @CurrentUser() user: any,
-  //   @UploadedFiles() files: Array<Express.Multer.File>,
-  // ) {
-  //   return await this.userService.ProfilePhoto(user, files);
-  // }
 
   @UseGuards(AuthGuard('jwt'))
   @Delete('account')
