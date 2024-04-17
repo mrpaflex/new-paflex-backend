@@ -101,12 +101,12 @@ export class UserService {
       throw new NotFoundException(`Account doesn't exist`);
     }
 
-    if ((await comparedHashedPassword(password, user.password)) === false) {
-      throw new UnauthorizedException('Password does not match');
-    }
-
     if (!user.isAccountVerified) {
       throw new BadRequestException(`You haven't verify your phone number`);
+    }
+
+    if ((await comparedHashedPassword(password, user.password)) === false) {
+      throw new UnauthorizedException('Password does not match');
     }
 
     const jwtPayload = {
@@ -254,9 +254,14 @@ export class UserService {
   }
 
   async verifyPhoneNumber(payload: VerifyPhoneNumberDto) {
-    const { phoneNumber, code } = payload;
+    const { phoneNumber, code, type } = payload;
     const userExist = await this.getByPhoneNumber(phoneNumber);
-    await this.otpService.verifyOtp(code, '', phoneNumber);
+    await this.otpService.verifyOtp({
+      email: null,
+      phoneNumber: phoneNumber,
+      code: code,
+      type: type,
+    });
 
     if (userExist.isAccountVerified) {
       throw new BadRequestException('Your account is already verified');

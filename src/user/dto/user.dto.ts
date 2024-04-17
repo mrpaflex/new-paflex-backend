@@ -4,12 +4,13 @@ import {
   IsDateString,
   IsObject,
   IsOptional,
-  IsNotEmpty,
   IsPhoneNumber,
   IsString,
   IsEnum,
+  IsNotEmpty,
 } from 'class-validator';
 import { Interested } from 'src/common/constant/enum/enum';
+import { OtpType } from 'src/otp/enum/otp.enum';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -63,6 +64,10 @@ export class VerifyPhoneNumberDto {
 
   @IsNotEmpty()
   code: string;
+
+  @IsNotEmpty()
+  @IsEnum(OtpType)
+  type: string;
 }
 
 export class PasswordDto {

@@ -1,7 +1,5 @@
 import { Twilio } from 'twilio';
-import { ENVIRONMENT } from './environmentVariables/environment.var';
-import { generateOtpCode } from './generateCode/random.code';
-import { String } from 'aws-sdk/clients/cloudsearchdomain';
+import { ENVIRONMENT } from '../environmentVariables/environment.var';
 
 export const TwilioSms = async (phoneNumber: string, template: string) => {
   const client = new Twilio(
@@ -9,11 +7,11 @@ export const TwilioSms = async (phoneNumber: string, template: string) => {
     ENVIRONMENT.TWILLO.authToken,
   );
 
-  const msg = await client.messages.create({
+  await client.messages.create({
     body: template,
     from: ENVIRONMENT.TWILLO.FROM,
     to: `${phoneNumber}`,
   });
 
-  return msg;
+  return;
 };

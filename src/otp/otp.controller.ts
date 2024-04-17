@@ -8,7 +8,7 @@ export class OtpController {
 
   @Post()
   async verify(payload: ValidateOtpDto) {
-    const { email, code, phoneNumber } = payload;
-    return await this.otpService.validateOtp(code, email, phoneNumber);
+    // const { email, code, phoneNumber } = payload;
+    return await this.otpService.validateOtp(payload);
   }
 }
