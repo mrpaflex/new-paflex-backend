@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { OtpController } from './otp.controller';
 import { OtpService } from './otp.service';
 import { MailModule } from 'src/mail/mail.module';

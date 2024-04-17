@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { User, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import {
   CreateUserDto,
+  IncreaseBalanceDto,
   LoginUserDto,
   PasswordDto,
   UpdateUserDto,
@@ -324,5 +326,19 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async increaseBalance(payload: IncreaseBalanceDto) {
+    const { userId, amount } = payload;
+    const newBalance = await this.userModel.findOneAndUpdate(
+      { _id: userId },
+      { $inc: { balance: amount } },
+      { new: true },
+    );
+
+    if (!newBalance) {
+      throw new InternalServerErrorException('Server Error while sending gift');
+    }
+    return newBalance;
   }
 }

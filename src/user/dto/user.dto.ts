@@ -8,6 +8,8 @@ import {
   IsString,
   IsEnum,
   IsNotEmpty,
+  IsMongoId,
+  IsNumber,
 } from 'class-validator';
 import { Interested } from 'src/common/constant/enum/enum';
 import { OtpType } from 'src/otp/enum/otp.enum';
@@ -79,6 +81,16 @@ export class PasswordDto {
   @IsString()
   //@IsStrongPassword()
   password: string;
+}
+
+export class IncreaseBalanceDto {
+  @IsNotEmpty()
+  @IsMongoId()
+  userId: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
 }
 
 export class LoginUserDto extends PasswordDto {}

@@ -43,4 +43,8 @@ export const ENVIRONMENT = {
     PORT: process.env.PORT,
     SESSION_SECRET: process.env.SESSION_SECRET,
   },
+
+  PERCENTAGE: {
+    PERCENTAGE: process.env.PERCENTAGE,
+  },
 };
