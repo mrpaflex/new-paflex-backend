@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RequestOtpDto } from 'src/otp/dto/otp.dto';
 import { OtpService } from 'src/otp/otp.service';
 import { UserService } from 'src/user/user.service';
+import { RequestOtpDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -38,14 +38,14 @@ export class AuthService {
   async requestOtp(payload: RequestOtpDto) {
     const { email, type, phoneNumber } = payload;
 
-    const user = await this.userService.findUserByPhoneNumberOrEmail(
-      email,
-      phoneNumber,
-    );
+    if (!email && !phoneNumber) {
+      throw new BadRequestException('PhoneNumber or Email is required');
+    }
+    await this.userService.findUserByPhoneNumberOrEmail(email, phoneNumber);
 
     const otp = await this.otpService.sendOtp({
-      email: user.email,
-      phoneNumber: user.phoneNumber,
+      email: email,
+      phoneNumber: phoneNumber,
       type: type,
     });
 

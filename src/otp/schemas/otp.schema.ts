@@ -17,7 +17,7 @@ export class Otp {
   @Prop({ unique: true })
   phoneNumber: string;
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date(), expires: 120 })
   createdAt: Date;
 
   @Prop({ default: Date.now(), expires: 120 })

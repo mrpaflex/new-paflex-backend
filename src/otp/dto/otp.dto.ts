@@ -43,18 +43,6 @@ export class SendOtpDto {
 
 export class VerifyOtpDto extends CreateOtpDto {}
 
-export class RequestOtpDto {
-  @IsPhoneNumber()
-  @IsOptional()
-  phoneNumber: string;
 
-  @IsNotEmpty()
-  @IsEnum(OtpType)
-  type: string;
-
-  @IsOptional()
-  @IsEmail()
-  email: string;
-}
 
 export class ValidateOtpDto extends VerifyOtpDto {}
