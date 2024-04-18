@@ -71,4 +71,5 @@ export class AuthController {
   async requestOtp(@Body() payload: RequestOtpDto) {
     return await this.authService.requestOtp(payload);
   }
+  
 }

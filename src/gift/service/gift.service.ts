@@ -18,56 +18,34 @@ export class GiftService {
   ) {}
 
   async giftForPost(payload: GiftPostDto, user: UserDocument) {
-    const { postId, amount, liveId, userReceiverId } = payload;
+    const { postId, amount, userReceiverId } = payload;
 
-    if (!liveId && !amount && !postId && !userReceiverId) {
-      throw new BadRequestException('Can not proceed');
+    if (!(postId || amount || userReceiverId)) {
+      throw new BadRequestException('Invalid payload');
     }
 
-    let gift;
-    let receiverId;
+    let receiverId: string;
 
     if (userReceiverId) {
       await this.userService.getById(userReceiverId);
-
       receiverId = userReceiverId;
-
-      gift = await this.giftModel.create({
-        ...payload,
-        senderId: user._id,
-        receiverId: receiverId,
-      });
-    }
-
-    if (postId) {
+    } else if (postId) {
       const post = await this.postService.getById(postId);
-
       receiverId = post.creatorId.toString();
-
-      gift = await this.giftModel.create({
-        ...payload,
-        senderId: user._id,
-        receiverId: receiverId,
-      });
     }
 
-    if (liveId) {
-      //not done this yet
-      return;
+    if (amount === 0 || amount < 0) {
+      throw new BadRequestException('Invalid Amount');
     }
 
     const myBalance = user.balance;
 
-    if (myBalance < 0 || myBalance < amount) {
-      throw new BadRequestException('Insufficient fund');
+    if (myBalance < amount) {
+      throw new BadRequestException('Insufficient funds');
     }
 
-    const newBalance = myBalance - amount;
-
     const percentage = +ENVIRONMENT.PERCENTAGE.PERCENTAGE;
-
     const deductAmount = amount * percentage;
-
     const sendAmount = amount - deductAmount;
 
     await this.userService.increaseBalance({
@@ -75,15 +53,17 @@ export class GiftService {
       amount: sendAmount,
     });
 
-    user.balance = newBalance;
+    user.balance -= amount;
     await user.save();
 
-    await this.giftModel.findOneAndUpdate(
-      { _id: gift._id },
-      { deliver: true, transactionStatus: 'Successful' },
-      { new: true },
-    );
+    await this.giftModel.create({
+      ...payload,
+      senderId: user._id,
+      receiverId: receiverId,
+      deliver: true,
+      transactionStatus: 'Successful',
+    });
 
-    return `Gift Sent Successfully`;
+    return 'Gift Sent Successfully';
   }
 }
