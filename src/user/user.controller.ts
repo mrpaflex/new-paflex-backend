@@ -41,20 +41,6 @@ export class UserController {
     );
   }
 
-  @Post('login')
-  async login(@Body() payload: LoginUserDto) {
-    return await this.userService.loginWithPhoneNumber(payload);
-  }
-
-  @Post('set-password')
-  async setPassword(@Body() payload: PasswordDto) {
-    return await this.userService.setPassword(payload);
-  }
-
-  @Post('verify-number')
-  async verifyPhoneNumber(@Body() payload: VerifyPhoneNumberDto) {
-    return await this.userService.verifyPhoneNumber(payload);
-  }
   @Get()
   async getAll(): Promise<UserDocument[]> {
     return await this.userService.getAll();

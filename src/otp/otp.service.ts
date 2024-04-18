@@ -45,11 +45,6 @@ export class OtpService {
 
     const code = generateOtpCode;
 
-    // const otpExist = await this.validateOtp({ email, phoneNumber, type, code });
-    // if (otpExist) {
-    //   throw new BadRequestException('Please try again later');
-    // }
-
     let template;
     let subject;
 
