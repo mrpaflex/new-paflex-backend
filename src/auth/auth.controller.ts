@@ -41,7 +41,7 @@ export class AuthController {
   //   return this.authService.create(request, referralId);
   // }
 
-  @Post('google/redirect/:referralId?')
+  @Post('google/:referralId?')
   async create(
     @Body() payload: GoogleCreateUserDto,
     @Param('referralId') referralId: string,
