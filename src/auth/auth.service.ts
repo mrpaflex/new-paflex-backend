@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { OtpService } from 'src/otp/otp.service';
 import { UserService } from 'src/user/user.service';
-import { RequestOtpDto } from './dto/auth.dto';
+import { GoogleCreateUserDto, RequestOtpDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -11,9 +11,11 @@ export class AuthService {
     private jwt: JwtService,
     private otpService: OtpService,
   ) {}
-  async create(req: any, referralId: string) {
-    const { email, accessToken } = req.user;
+  async create(payloadInput: GoogleCreateUserDto, referralId: string) {
+    const { email } = payloadInput;
+
     const userExist = await this.userService.getByEmail(email);
+
     if (userExist) {
       const payload = {
         id: userExist._id,
@@ -25,7 +27,9 @@ export class AuthService {
 
       return accessToken;
     }
-    const createdUser = await this.userService.create(req, referralId);
+
+    const createdUser = await this.userService.create(payloadInput, referralId);
+
     const payload = {
       id: createdUser._id,
       firstName: createdUser.firstName,

@@ -10,7 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { RequestOtpDto } from './dto/auth.dto';
+import { GoogleCreateUserDto, RequestOtpDto } from './dto/auth.dto';
 import {
   CreateUserDto,
   LoginUserDto,
@@ -26,19 +26,27 @@ export class AuthController {
     private userService: UserService,
   ) {}
 
-  @Get()
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() request: Request) {
-    console.log('this');
-  }
+  // @Get()
+  // @UseGuards(AuthGuard('google'))
+  // async googleAuth(@Req() request: Request) {
+  //   console.log('this');
+  // }
 
-  @Get('google/redirect/:referralId?')
-  @UseGuards(AuthGuard('google'))
+  // @Get('google/redirect/:referralId?')
+  // @UseGuards(AuthGuard('google'))
+  // async create(
+  //   @Req() request: Request,
+  //   @Param('referralId') referralId: string,
+  // ) {
+  //   return this.authService.create(request, referralId);
+  // }
+
+  @Post('google/redirect/:referralId?')
   async create(
-    @Req() request: Request,
+    @Body() payload: GoogleCreateUserDto,
     @Param('referralId') referralId: string,
   ) {
-    return this.authService.create(request, referralId);
+    return this.authService.create(payload, referralId);
   }
 
   @Post('phone-number/:referralId?')
@@ -71,5 +79,4 @@ export class AuthController {
   async requestOtp(@Body() payload: RequestOtpDto) {
     return await this.authService.requestOtp(payload);
   }
-  
 }

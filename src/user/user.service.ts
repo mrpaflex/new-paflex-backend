@@ -31,6 +31,7 @@ import {
   deletePostFile,
   uploadFiles,
 } from 'src/common/utils/aws-bucket/file-aws-bucket';
+import { GoogleCreateUserDto } from 'src/auth/dto/auth.dto';
 
 @Injectable()
 export class UserService {
@@ -41,7 +42,10 @@ export class UserService {
     private otpService: OtpService,
   ) {}
 
-  async create(req: any, referralId: string): Promise<UserDocument> {
+  async create(
+    payloadInput: GoogleCreateUserDto,
+    referralId: string,
+  ): Promise<UserDocument> {
     if (referralId) {
       const referredUser = await this.getById(referralId);
 
@@ -50,7 +54,7 @@ export class UserService {
       }
       await this.addReferralBonus(referralId);
     }
-    const { email, firstName, lastName, refreshToken, picture } = req.user;
+    const { email, firstName, lastName, refreshToken, picture } = payloadInput;
 
     const createdUser = await this.userModel.create({
       email,
