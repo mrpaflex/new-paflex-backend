@@ -64,6 +64,7 @@ export class UserService {
       referredBy: referralId,
       isAccountVerified: true,
       profilePicture: picture,
+      isGoogleAuth: true,
     });
     return createdUser;
   }
@@ -92,7 +93,7 @@ export class UserService {
     const code = generateOtpCode;
 
     await this.otpService.sendOtp({
-      email: createdUser.email,
+      email: createdUser.email, //null
       phoneNumber: phoneNumber,
       type: OtpType.PHONE_NUMBER_VERIFICATION,
     });
@@ -260,13 +261,13 @@ export class UserService {
   }
 
   async verifyPhoneNumber(payload: VerifyPhoneNumberDto) {
-    const { phoneNumber, code, type } = payload;
+    const { phoneNumber, code } = payload;
     const userExist = await this.getByPhoneNumber(phoneNumber);
     await this.otpService.verifyOtp({
       email: null,
       phoneNumber: phoneNumber,
       code: code,
-      type: type,
+      type: OtpType.PHONE_NUMBER_VERIFICATION,
     });
 
     if (userExist.isAccountVerified) {

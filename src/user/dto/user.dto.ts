@@ -66,10 +66,6 @@ export class VerifyPhoneNumberDto {
 
   @IsNotEmpty()
   code: string;
-
-  @IsNotEmpty()
-  @IsEnum(OtpType)
-  type: string;
 }
 
 export class PasswordDto {

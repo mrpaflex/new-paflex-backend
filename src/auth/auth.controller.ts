@@ -1,15 +1,5 @@
-import {
-  Controller,
-  Get,
-  Req,
-  UseGuards,
-  Param,
-  Body,
-  Post,
-} from '@nestjs/common';
+import { Controller, Param, Body, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
 import { GoogleCreateUserDto, RequestOtpDto } from './dto/auth.dto';
 import {
   CreateUserDto,
@@ -25,21 +15,6 @@ export class AuthController {
     private authService: AuthService,
     private userService: UserService,
   ) {}
-
-  // @Get()
-  // @UseGuards(AuthGuard('google'))
-  // async googleAuth(@Req() request: Request) {
-  //   console.log('this');
-  // }
-
-  // @Get('google/redirect/:referralId?')
-  // @UseGuards(AuthGuard('google'))
-  // async create(
-  //   @Req() request: Request,
-  //   @Param('referralId') referralId: string,
-  // ) {
-  //   return this.authService.create(request, referralId);
-  // }
 
   @Post('google/:referralId?')
   async create(

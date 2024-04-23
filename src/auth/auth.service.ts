@@ -17,26 +17,11 @@ export class AuthService {
     const userExist = await this.userService.getByEmail(email);
 
     if (userExist) {
-      const payload = {
-        id: userExist._id,
-        firstName: userExist.firstName,
-        lastName: userExist.lastName,
-      };
-
-      const accessToken = this.jwt.sign(payload);
-
-      return accessToken;
+      return await this.jwtAccessToken(userExist);
     }
 
     const createdUser = await this.userService.create(payloadInput, referralId);
-
-    const payload = {
-      id: createdUser._id,
-      firstName: createdUser.firstName,
-      lastName: createdUser.lastName,
-    };
-    const token = this.jwt.sign(payload);
-    return token;
+    return await this.jwtAccessToken(createdUser);
   }
 
   async requestOtp(payload: RequestOtpDto) {
@@ -54,5 +39,17 @@ export class AuthService {
     });
 
     return otp;
+  }
+
+  async jwtAccessToken(payload: any) {
+    payload = {
+      id: payload._id,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+    };
+
+    const accessToken = this.jwt.sign(payload);
+
+    return accessToken;
   }
 }

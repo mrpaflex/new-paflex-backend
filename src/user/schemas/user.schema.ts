@@ -18,6 +18,9 @@ export class User {
   @Prop({ type: String })
   lastName?: string;
 
+  @Prop({ type: Boolean, default: false })
+  isGoogleAuth?: boolean;
+
   @Prop({ type: [Photo], default: [] })
   profilePhoto?: Photo[];
 

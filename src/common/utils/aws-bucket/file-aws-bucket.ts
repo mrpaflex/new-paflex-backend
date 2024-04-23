@@ -1,5 +1,5 @@
 import { S3 } from 'aws-sdk';
-//import * as sharp from 'sharp';
+import * as sharp from 'sharp';
 import { ENVIRONMENT } from 'src/common/constant/environmentVariables/environment.var';
 import * as fs from 'fs';
 
@@ -15,17 +15,10 @@ export const uploadFiles = async (files: any) => {
 
   const file = await resolved(files);
 
-  const fileBuffer = fs.readFileSync(file.path);
-
-  // const resizedImageBuffer = await sharp(fileBuffer)
-  //   .resize(80)
-  //   .webp({ quality: 80 })
-  //   .toBuffer();
-
   const params = {
     Bucket: ENVIRONMENT.AWS.Bucket,
     Key: file.filename,
-    Body: fileBuffer,
+    Body: file.buffer,
   };
 
   return await s3.upload(params).promise();
@@ -71,16 +64,22 @@ export const deletePostFile = async (images: any) => {
 };
 
 const resolved = async (files: any) => {
-  let newFile;
-  if (Array.isArray(files)) {
-    files.map((file: any) => {
-      newFile = file;
-      return newFile;
-    });
-  } else if (typeof files === 'object' && files !== null) {
-    return files;
+  const fileBuffer = fs.readFileSync(files.path);
+
+  if (typeof files === 'object' && files !== null) {
+    const validVideoType = ['video/mp4'];
+
+    if (validVideoType.includes(files.mimetype)) {
+      return { buffer: fileBuffer, filename: files.path };
+    } else {
+      const resizedImageBuffer = await sharp(fileBuffer)
+        .resize(80)
+        .webp({ quality: 80 })
+        .toBuffer();
+
+      return { buffer: resizedImageBuffer, filename: files.path };
+    }
   } else {
     return;
   }
-  return newFile;
 };
