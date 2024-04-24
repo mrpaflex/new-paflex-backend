@@ -1,7 +1,10 @@
 import { S3 } from 'aws-sdk';
-import * as sharp from 'sharp';
+//import * as sharp from 'sharp';
 import { ENVIRONMENT } from 'src/common/constant/environmentVariables/environment.var';
 import * as fs from 'fs';
+// import * as ffmpeg from 'fluent-ffmpeg';
+// const ffmpeg = require('@ffmpeg-installer/ffmpeg');
+// import path from 'path';
 
 export const uploadFiles = async (files: any) => {
   if (!files) {
@@ -70,16 +73,34 @@ const resolved = async (files: any) => {
     const validVideoType = ['video/mp4'];
 
     if (validVideoType.includes(files.mimetype)) {
+      // const compressedVideo = await processVideo(fileBuffer, files.path);
+
       return { buffer: fileBuffer, filename: files.path };
     } else {
-      const resizedImageBuffer = await sharp(fileBuffer)
-        .resize(80)
-        .webp({ quality: 80 })
-        .toBuffer();
+      return { buffer: fileBuffer, filename: files.path };
+      // const resizedImageBuffer = await sharp(fileBuffer)
+      //   .resize(80)
+      //   .webp({ quality: 80 })
+      //   .toBuffer();
 
-      return { buffer: resizedImageBuffer, filename: files.path };
+      // return { buffer: resizedImageBuffer, filename: files.path };
     }
   } else {
     return;
   }
 };
+
+// export const processVideo = async (
+//   buffer: any,
+//   filePath: string,
+// ): Promise<string> => {
+//   return new Promise<string>((resolve, reject) => {
+//     return ffmpeg(buffer) // Use ffmpeg from fluent-ffmpeg
+//       .videoCodec('libx264')
+//       .size('640x?')
+//       .output(filePath)
+//       .on('end', () => resolve(filePath))
+//       .on('error', (err) => reject(err))
+//       .run();
+//   });
+// };

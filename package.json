@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "engines": {
-    "node": "20.x"
+    "node": "18.x"
   },
   "scripts": {
     "build": "nest build",
@@ -23,6 +23,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@nestjs-modules/mailer": "^1.11.2",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.0",
