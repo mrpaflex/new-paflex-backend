@@ -1,6 +1,11 @@
 import { Controller, Param, Body, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { GoogleCreateUserDto, RequestOtpDto } from './dto/auth.dto';
+import {
+  ForgotPasswordDto,
+  GoogleCreateUserDto,
+  RequestOtpDto,
+  ResetPasswordDto,
+} from './dto/auth.dto';
 import {
   CreateUserDto,
   LoginUserDto,
@@ -53,5 +58,15 @@ export class AuthController {
   @Post('request-otp')
   async requestOtp(@Body() payload: RequestOtpDto) {
     return await this.authService.requestOtp(payload);
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body() payload: ForgotPasswordDto) {
+    return await this.authService.forgetPassword(payload);
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Body() payload: ResetPasswordDto) {
+    return await this.authService.resetPassword(payload);
   }
 }

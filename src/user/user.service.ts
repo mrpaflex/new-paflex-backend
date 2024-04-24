@@ -162,6 +162,10 @@ export class UserService {
     );
   }
 
+  async updateUserProfileByPhoneNumber(phoneNumber: string, payload: any) {
+    return await this.userModel.updateOne({ phoneNumber }, payload);
+  }
+
   async ProfilePhoto(user: UserDocument, file: Express.Multer.File) {
     let profilePhoto = [];
     const userId = user._id.toString();

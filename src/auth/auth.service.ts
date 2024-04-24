@@ -2,7 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { OtpService } from 'src/otp/otp.service';
 import { UserService } from 'src/user/user.service';
-import { GoogleCreateUserDto, RequestOtpDto } from './dto/auth.dto';
+import {
+  ForgotPasswordDto,
+  GoogleCreateUserDto,
+  RequestOtpDto,
+  ResetPasswordDto,
+} from './dto/auth.dto';
+import { OtpType } from 'src/otp/enum/otp.enum';
+import { hashPassword } from '../common/utils/hashed/password.bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -51,5 +58,35 @@ export class AuthService {
     const accessToken = this.jwt.sign(payload);
 
     return accessToken;
+  }
+
+  async forgetPassword(payload: ForgotPasswordDto) {
+    const { phoneNumber } = payload;
+    await this.userService.getByPhoneNumber(phoneNumber);
+    await this.otpService.sendOtp({
+      email: null,
+      phoneNumber: phoneNumber,
+      type: OtpType.RESET_PASSWORD,
+    });
+
+    return 'otp sent';
+  }
+
+  async resetPassword(payload: ResetPasswordDto) {
+    const { phoneNumber, code, password } = payload;
+    await this.otpService.verifyOtp({
+      email: null,
+      phoneNumber: phoneNumber,
+      code: code,
+      type: OtpType.RESET_PASSWORD,
+    });
+
+    const hashedPassword = await hashPassword(password);
+
+    await this.userService.updateUserProfileByPhoneNumber(phoneNumber, {
+      password: hashedPassword,
+    });
+
+    return 'Password Changed';
   }
 }

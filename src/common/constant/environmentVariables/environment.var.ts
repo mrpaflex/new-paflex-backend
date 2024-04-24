@@ -12,15 +12,15 @@ export const ENVIRONMENT = {
     FROM: process.env.FROM,
   },
 
-  GoogleSuperMethod: {
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_SECRET,
-    callbackURL: process.env.CALLBACK_URL,
-    scope: [
-      'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/userinfo.profile',
-    ],
-  },
+  // GoogleSuperMethod: {
+  //   clientID: process.env.GOOGLE_CLIENT_ID,
+  //   clientSecret: process.env.GOOGLE_SECRET,
+  //   callbackURL: process.env.CALLBACK_URL,
+  //   scope: [
+  //     'https://www.googleapis.com/auth/userinfo.email',
+  //     'https://www.googleapis.com/auth/userinfo.profile',
+  //   ],
+  // },
 
   ACCESS_TOKEN: {
     JWT_MAIN_SECRET: process.env.JWT_MAIN_SECRET,

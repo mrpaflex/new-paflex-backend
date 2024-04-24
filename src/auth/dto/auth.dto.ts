@@ -43,3 +43,19 @@ export class GoogleCreateUserDto {
   @IsOptional()
   picture: string;
 }
+
+export class ForgotPasswordDto {
+  @IsNotEmpty()
+  @IsPhoneNumber()
+  phoneNumber: string;
+}
+
+export class ResetPasswordDto extends ForgotPasswordDto {
+  @IsNotEmpty()
+  @IsString()
+  code: string;
+
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+}
