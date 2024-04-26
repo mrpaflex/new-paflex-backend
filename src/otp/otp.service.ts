@@ -73,7 +73,7 @@ export class OtpService {
     }
 
     if (phoneNumber) {
-      await TwilioSms(phoneNumber, template);
+      //await TwilioSms(phoneNumber, template);
     }
     return 'otp sent';
   }

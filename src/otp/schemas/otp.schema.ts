@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 import { OtpType } from '../enum/otp.enum';
 
 export type OtpDocument = Otp & Document;
-@Schema({ expires: 120 })
+@Schema({ expires: 600 })
 export class Otp {
   @Prop({ unique: true })
   email: string;
@@ -17,10 +17,10 @@ export class Otp {
   @Prop({ unique: true })
   phoneNumber: string;
 
-  @Prop({ default: new Date(), expires: 120 }) //2 minutes
+  @Prop({ default: new Date(), expires: 600 }) //2 minutes
   createdAt: Date;
 
-  @Prop({ default: Date.now(), expires: 120 })
+  @Prop({ default: Date.now(), expires: 600 })
   expiresAt: Date;
 }
 
