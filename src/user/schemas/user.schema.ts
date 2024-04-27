@@ -37,6 +37,9 @@ export class User {
   dob?: string;
 
   @Prop({ type: String })
+  accessToken?: string;
+
+  @Prop({ type: String })
   phoneNumber?: string;
 
   @Prop({ type: String, enum: UserType, default: UserType.NORMAL_USER })

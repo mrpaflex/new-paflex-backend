@@ -128,7 +128,11 @@ export class UserService {
     };
 
     const token = this.jwt.sign(jwtPayload);
-    return token;
+
+    user.accessToken = token;
+    await user.save();
+
+    return user;
   }
 
   async getByEmail(email: string): Promise<UserDocument> {
