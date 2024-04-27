@@ -34,7 +34,15 @@ export class OtpService {
     });
 
     if (otpExist) {
-      throw new BadRequestException('Please try again');
+      return await this.otpModel.findOneAndUpdate(
+        { email, phoneNumber, type },
+        payload,
+        {
+          new: true,
+          upsert: true,
+          runValidators: true,
+        },
+      );
     }
 
     return await this.otpModel.create({ ...payload });

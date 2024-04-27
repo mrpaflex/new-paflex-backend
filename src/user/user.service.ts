@@ -19,7 +19,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PostsService } from 'src/posts/services/posts.service';
 import { OtpService } from 'src/otp/otp.service';
-import { generateOtpCode } from 'src/common/constant/generateCode/random.code';
 //import { Twilio } from 'twilio';
 import { ENVIRONMENT } from 'src/common/constant/environmentVariables/environment.var';
 import { OtpType } from '../otp/enum/otp.enum';
@@ -85,7 +84,7 @@ export class UserService {
           type: OtpType.PHONE_NUMBER_VERIFICATION,
         });
       } else if (userExist.isAccountVerified) {
-        throw new BadRequestException('Enter Your Password');
+        return 'You Account is Verified';
       }
     }
 
