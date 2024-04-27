@@ -6,7 +6,7 @@ import { Photo } from './sub-user.schema';
 export type UserDocument = User & Document;
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ type: String })
+  @Prop({ type: String, unique: true })
   email?: string;
 
   @Prop({ type: String })
@@ -36,7 +36,7 @@ export class User {
   @Prop({ type: String, default: '19XX-month-day' })
   dob?: string;
 
-  @Prop({ type: String })
+  @Prop({ type: String, unique: true })
   phoneNumber?: string;
 
   @Prop({ type: String, enum: UserType, default: UserType.NORMAL_USER })

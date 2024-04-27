@@ -78,7 +78,15 @@ export class UserService {
     const userExist = await this.userModel.findOne({ phoneNumber });
 
     if (userExist) {
-      throw new BadRequestException('Account already exist');
+      if (userExist.isAccountVerified === false) {
+        return await this.otpService.sendOtp({
+          email: userExist.email, //null
+          phoneNumber: userExist.phoneNumber,
+          type: OtpType.PHONE_NUMBER_VERIFICATION,
+        });
+      } else if (userExist.isAccountVerified) {
+        throw new BadRequestException('Enter Your Password');
+      }
     }
 
     if (referralId) {
@@ -89,8 +97,6 @@ export class UserService {
       phoneNumber,
       referredBy: referralId,
     });
-
-    const code = generateOtpCode;
 
     await this.otpService.sendOtp({
       email: createdUser.email, //null

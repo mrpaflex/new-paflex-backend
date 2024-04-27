@@ -29,15 +29,21 @@ export class OtpService {
   async createOtp(payload: CreateOtpDto) {
     const { email, phoneNumber } = payload;
 
-    const otpExist = await this.otpModel.findOne({
-      $or: [{ email: email }, { phoneNumber: phoneNumber }],
-    });
+    return await this.otpModel.findOneAndUpdate(
+      { email, phoneNumber },
+      payload,
+      { new: true, upsert: true },
+    );
 
-    if (otpExist) {
-      throw new BadRequestException('Please try again');
-    }
+    // const otpExist = await this.otpModel.findOne({
+    //   $or: [{ email: email }, { phoneNumber: phoneNumber }],
+    // });
 
-    return await this.otpModel.create({ ...payload });
+    // if (otpExist) {
+    //   throw new BadRequestException('Please try again');
+    // }
+
+    // return await this.otpModel.create({ ...payload });
   }
 
   async sendOtp(payload: SendOtpDto): Promise<any> {
