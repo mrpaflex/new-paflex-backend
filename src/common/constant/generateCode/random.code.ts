@@ -1,6 +1,7 @@
-import * as randomString from 'randomstring';
+import { randomBytes } from 'crypto';
 
-export const generateOtpCode = randomString.generate({
-  length: 4,
-  charset: 'numeric',
-});
+export const generateOtpCode = {
+  generateString: () => {
+    return Math.round(Math.random() * 10000).toString();
+  },
+};

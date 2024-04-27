@@ -164,6 +164,21 @@ export class UserService {
   }
 
   async updateProfile(user: UserDocument, payload: UpdateUserDto) {
+    const { username } = payload;
+
+    if (username) {
+      const userNameExist = await this.userModel.countDocuments({
+        username: username,
+        _id: { $ne: user._id },
+      });
+
+      if (userNameExist) {
+        throw new BadRequestException(
+          `username ${username} has been taken already`,
+        );
+      }
+    }
+
     return await this.userModel.findOneAndUpdate(
       { _id: user._id },
       { ...payload },

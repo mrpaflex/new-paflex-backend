@@ -1,9 +1,9 @@
 export const ConstantMessage = {
-  AccountVerificationTemplate: async (code: number) => {
+  AccountVerificationTemplate: async (code: string) => {
     return `Kindly use the code below to activate your account ${code}`;
   },
 
-  ResetPasswordTemplate: async (code: number) => {
+  ResetPasswordTemplate: async (code: string) => {
     return `Verify your action to reset your password ${code}`;
   },
 

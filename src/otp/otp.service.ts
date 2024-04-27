@@ -27,15 +27,15 @@ export class OtpService {
   ) {}
 
   async createOtp(payload: CreateOtpDto) {
-    const { email, phoneNumber, type } = payload;
+    const { email, phoneNumber } = payload;
 
     const otpExist = await this.otpModel.findOne({
-      $or: [{ email: email }, { phoneNumber: phoneNumber }, { type: type }],
+      $or: [{ email: email }, { phoneNumber: phoneNumber }],
     });
 
     if (otpExist) {
       return await this.otpModel.findOneAndUpdate(
-        { email, phoneNumber, type },
+        { email, phoneNumber },
         payload,
         {
           new: true,
@@ -51,7 +51,7 @@ export class OtpService {
   async sendOtp(payload: SendOtpDto): Promise<any> {
     const { email, phoneNumber, type } = payload;
 
-    const code = generateOtpCode;
+    const code = generateOtpCode.generateString();
 
     let template;
     let subject;

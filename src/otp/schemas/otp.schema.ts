@@ -5,22 +5,22 @@ import { OtpType } from '../enum/otp.enum';
 export type OtpDocument = Otp & Document;
 @Schema({ expires: 600 })
 export class Otp {
-  @Prop({ unique: true })
+  @Prop({ type: String })
   email: string;
 
   @Prop({ type: String, enum: OtpType, required: true })
   type: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   code: string;
 
-  @Prop({ unique: true })
+  @Prop({ type: String })
   phoneNumber: string;
 
-  @Prop({ default: new Date(), expires: 600 }) //2 minutes
+  @Prop({ default: new Date() })
   createdAt: Date;
 
-  @Prop({ default: Date.now(), expires: 600 })
+  @Prop({ default: Date.now(), expires: 600 }) //10 minutes
   expiresAt: Date;
 }
 

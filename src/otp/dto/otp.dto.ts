@@ -43,6 +43,4 @@ export class SendOtpDto {
 
 export class VerifyOtpDto extends CreateOtpDto {}
 
-
-
 export class ValidateOtpDto extends VerifyOtpDto {}
