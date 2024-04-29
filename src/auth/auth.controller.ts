@@ -1,4 +1,11 @@
-import { Controller, Param, Body, Post, UseGuards, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Param,
+  Body,
+  Post,
+  UseGuards,
+  Patch,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   ForgotPasswordDto,
@@ -50,9 +57,12 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Patch()
-  async updateEmail(@Body() payload: UpdateEmailDto, @CurrentUser() user: UserDocument) {
-    return await this.authService.updateEmail(payload, user._id)
+  @Patch('update-email')
+  async updateEmail(
+    @Body() payload: UpdateEmailDto,
+    @CurrentUser() user: UserDocument,
+  ) {
+    return await this.authService.updateEmail(payload, user._id);
   }
 
   @Post('set-password')
