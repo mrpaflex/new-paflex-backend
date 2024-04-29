@@ -19,7 +19,6 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PostsService } from 'src/posts/services/posts.service';
 import { OtpService } from 'src/otp/otp.service';
-//import { Twilio } from 'twilio';
 import { ENVIRONMENT } from 'src/common/constant/environmentVariables/environment.var';
 import { OtpType } from '../otp/enum/otp.enum';
 import {
@@ -31,6 +30,7 @@ import {
   uploadFiles,
 } from 'src/common/utils/aws-bucket/file-aws-bucket';
 import { GoogleCreateUserDto } from 'src/auth/dto/auth.dto';
+import { AutoUsername } from 'src/common/constant/generateCode/random.code';
 
 @Injectable()
 export class UserService {
@@ -54,6 +54,7 @@ export class UserService {
       await this.addReferralBonus(referralId);
     }
     const { email, firstName, lastName, refreshToken, picture } = payloadInput;
+    const username = await AutoUsername();
 
     const createdUser = await this.userModel.create({
       email,
@@ -62,8 +63,8 @@ export class UserService {
       refreshToken,
       referredBy: referralId,
       isAccountVerified: true,
-      profilePicture: picture,
       isGoogleAuth: true,
+      username: username,
     });
     return createdUser;
   }
@@ -92,9 +93,12 @@ export class UserService {
       await this.getById(referralId);
     }
 
+    const username = await AutoUsername();
+
     const createdUser = await this.userModel.create({
       phoneNumber,
       referredBy: referralId,
+      username: username,
     });
 
     await this.otpService.sendOtp({
