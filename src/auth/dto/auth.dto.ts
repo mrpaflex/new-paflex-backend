@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsEnum,
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
@@ -58,4 +59,10 @@ export class ResetPasswordDto extends ForgotPasswordDto {
   @IsNotEmpty()
   @IsString()
   password: string;
+}
+
+export class UpdateEmailDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 }

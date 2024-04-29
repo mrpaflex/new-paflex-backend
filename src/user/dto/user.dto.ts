@@ -10,6 +10,7 @@ import {
   IsNotEmpty,
   IsMongoId,
   IsNumber,
+  IsEmail,
 } from 'class-validator';
 import { Interested } from 'src/common/constant/enum/enum';
 import { OtpType } from 'src/otp/enum/otp.enum';

@@ -1,10 +1,11 @@
-import { Controller, Param, Body, Post } from '@nestjs/common';
+import { Controller, Param, Body, Post, UseGuards, Patch } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   ForgotPasswordDto,
   GoogleCreateUserDto,
   RequestOtpDto,
   ResetPasswordDto,
+  UpdateEmailDto,
 } from './dto/auth.dto';
 import {
   CreateUserDto,
@@ -13,6 +14,9 @@ import {
   VerifyPhoneNumberDto,
 } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
+import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from './decorators/loggedIn-user.decorator';
+import { UserDocument } from 'src/user/schemas/user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -43,6 +47,12 @@ export class AuthController {
   @Post('phone-number-login')
   async login(@Body() payload: LoginUserDto) {
     return await this.userService.loginWithPhoneNumber(payload);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch()
+  async updateEmail(@Body() payload: UpdateEmailDto, @CurrentUser() user: UserDocument) {
+    return await this.authService.updateEmail(payload, user._id)
   }
 
   @Post('set-password')

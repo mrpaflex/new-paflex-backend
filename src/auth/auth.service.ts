@@ -7,6 +7,7 @@ import {
   GoogleCreateUserDto,
   RequestOtpDto,
   ResetPasswordDto,
+  UpdateEmailDto,
 } from './dto/auth.dto';
 import { OtpType } from 'src/otp/enum/otp.enum';
 import { hashPassword } from '../common/utils/hashed/password.bcrypt';
@@ -24,11 +25,17 @@ export class AuthService {
     const userExist = await this.userService.getByEmail(email);
 
     if (userExist) {
-      return await this.jwtAccessToken(userExist);
+      if (userExist.isGoogleAuth) {
+        return userExist;
+      } else {
+        throw new BadRequestException('Can not proceed');
+      }
     }
 
     const createdUser = await this.userService.create(payloadInput, referralId);
-    return await this.jwtAccessToken(createdUser);
+    const accessToken = await this.jwtAccessToken(createdUser);
+    createdUser.accessToken = accessToken;
+    await createdUser.save();
   }
 
   async requestOtp(payload: RequestOtpDto) {
@@ -74,6 +81,7 @@ export class AuthService {
 
   async resetPassword(payload: ResetPasswordDto) {
     const { phoneNumber, code, password } = payload;
+
     await this.otpService.verifyOtp({
       email: null,
       phoneNumber: phoneNumber,
@@ -81,12 +89,32 @@ export class AuthService {
       type: OtpType.RESET_PASSWORD,
     });
 
+    const user = await this.userService.getByPhoneNumber(phoneNumber);
+
     const hashedPassword = await hashPassword(password);
 
-    await this.userService.updateUserProfileByPhoneNumber(phoneNumber, {
-      password: hashedPassword,
-    });
+    user.password = hashedPassword;
+
+    await user.save();
+
+    // await this.userService.updateUserProfileByPhoneNumber(phoneNumber, {
+    //   password: hashedPassword,
+    // });
 
     return 'Password Changed';
+  }
+
+  async updateEmail(payload: UpdateEmailDto, userId: string) {
+    const { email } = payload;
+    const user = await this.userService.getById(userId);
+
+    if (user.isGoogleAuth) {
+      throw new BadRequestException('You can not change you google email');
+    }
+    user.email = email;
+
+    await user.save();
+
+    return user;
   }
 }

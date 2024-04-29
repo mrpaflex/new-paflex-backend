@@ -6,7 +6,7 @@ import { Photo } from './sub-user.schema';
 export type UserDocument = User & Document;
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ type: String })
+  @Prop({ type: String, unique: true })
   email?: string;
 
   @Prop({ type: String })
