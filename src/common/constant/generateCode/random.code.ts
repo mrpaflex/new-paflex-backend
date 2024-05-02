@@ -1,7 +1,7 @@
 import * as randomstring from 'randomstring';
 
 export const generateOtpCode = {
-  generateString: () => {
+  generateString: async () => {
     return Math.round(Math.random() * 10000).toString();
   },
 };

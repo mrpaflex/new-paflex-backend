@@ -80,7 +80,7 @@ export class UserService {
     if (userExist) {
       if (userExist.isAccountVerified === false) {
         return await this.otpService.sendOtp({
-          email: userExist.email, //null
+          email: userExist.email,
           phoneNumber: userExist.phoneNumber,
           type: OtpType.PHONE_NUMBER_VERIFICATION,
         });
@@ -102,7 +102,7 @@ export class UserService {
     });
 
     await this.otpService.sendOtp({
-      email: createdUser.email, //null
+      email: createdUser.email,
       phoneNumber: phoneNumber,
       type: OtpType.PHONE_NUMBER_VERIFICATION,
     });
