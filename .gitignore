@@ -7,6 +7,7 @@ error.txt
 /src/common/utils/cloudinary/cloudinary.upload.ts
 /src/common/utils/cloudinary/cloudinary.delete.ts
 /src/common/utils/cloudinary/cloudinary.ts
+/dev.docker.ts
 
 /keep.txt
 # Logs

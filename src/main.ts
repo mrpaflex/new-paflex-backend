@@ -36,6 +36,8 @@ async function bootstrap() {
 
   const PORT = ENVIRONMENT.CONN_PORT.PORT || 3000;
 
-  await app.listen(PORT);
+  await app.listen(PORT, () => {
+    console.log(`Server running on ${PORT}`);
+  });
 }
 bootstrap();

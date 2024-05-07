@@ -18,6 +18,7 @@ import { MailService } from 'src/mail/mail.service';
 import { ConstantMessage } from 'src/common/constant/message/msg.response';
 import { OtpType } from './enum/otp.enum';
 import { TwilioSms } from 'src/common/constant/twillio/twillio.sms';
+import { TermiiSendSMS } from 'src/common/constant/termii/sms.termii';
 
 @Injectable()
 export class OtpService {
@@ -81,6 +82,7 @@ export class OtpService {
     }
 
     if (phoneNumber) {
+      //await TermiiSendSMS();
       //await TwilioSms(phoneNumber, template);
     }
     return 'otp sent';

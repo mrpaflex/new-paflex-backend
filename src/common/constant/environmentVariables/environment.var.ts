@@ -12,6 +12,11 @@ export const ENVIRONMENT = {
     FROM: process.env.FROM,
   },
 
+  TERMII: {
+    TERMII_API_KEY: process.env.TERMII_KEY,
+    SENDER_ID: process.env.SENDER_ID,
+  },
+
   // GoogleSuperMethod: {
   //   clientID: process.env.GOOGLE_CLIENT_ID,
   //   clientSecret: process.env.GOOGLE_SECRET,
