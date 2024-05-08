@@ -11,8 +11,6 @@ import {
 } from './dto/auth.dto';
 import { OtpType } from 'src/otp/enum/otp.enum';
 import { hashPassword } from '../common/utils/hashed/password.bcrypt';
-import { UserDocument } from 'src/user/schemas/user.schema';
-import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -30,6 +28,12 @@ export class AuthService {
 
     if (userExist) {
       if (userExist.isGoogleAuth) {
+        const accessToken = await this.jwtAccessToken(userExist);
+
+        userExist.accessToken = accessToken;
+
+        await userExist.save();
+
         return userExist;
       } else {
         throw new BadRequestException(`Can not login`);
