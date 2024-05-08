@@ -5,6 +5,7 @@ import {
   Post,
   UseGuards,
   Patch,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
@@ -24,6 +25,8 @@ import { UserService } from 'src/user/user.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from './decorators/loggedIn-user.decorator';
 import { UserDocument } from 'src/user/schemas/user.schema';
+import { Response } from 'express';
+import { LocalAuthGuard } from './guards/local.auth.guards';
 
 @Controller('auth')
 export class AuthController {
@@ -36,7 +39,11 @@ export class AuthController {
   async create(
     @Body() payload: GoogleCreateUserDto,
     @Param('referralId') referralId: string,
+    // @CurrentUser() user: UserDocument,
+    // @Res({ passthrough: true }) response: Response,
   ) {
+    // await this.authService.loginUserWithGoogleAuth(user, response);
+    // response.send(user);
     return this.authService.create(payload, referralId);
   }
 

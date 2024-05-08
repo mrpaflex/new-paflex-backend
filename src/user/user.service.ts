@@ -125,13 +125,7 @@ export class UserService {
       throw new UnauthorizedException('Password does not match');
     }
 
-    const jwtPayload = {
-      id: user._id,
-      firstName: user.firstName,
-      username: user.username,
-    };
-
-    const token = this.jwt.sign(jwtPayload);
+    const token = await this.jwtAccessToken(user);
 
     user.accessToken = token;
     await user.save();
@@ -377,5 +371,17 @@ export class UserService {
       throw new InternalServerErrorException('Server Error while sending gift');
     }
     return newBalance;
+  }
+
+  async jwtAccessToken(payload) {
+    payload = {
+      id: payload._id,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+    };
+
+    const accessToken = this.jwt.sign(payload);
+
+    return accessToken;
   }
 }

@@ -11,6 +11,9 @@ import {
 } from './dto/auth.dto';
 import { OtpType } from 'src/otp/enum/otp.enum';
 import { hashPassword } from '../common/utils/hashed/password.bcrypt';
+import { UserDocument } from 'src/user/schemas/user.schema';
+import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -18,8 +21,9 @@ export class AuthService {
     private userService: UserService,
     private jwt: JwtService,
     private otpService: OtpService,
+    private config: ConfigService,
   ) {}
-  async create(payloadInput: GoogleCreateUserDto, referralId: string) {
+  async create(payloadInput: GoogleCreateUserDto, referralId?: string) {
     const { email } = payloadInput;
 
     const userExist = await this.userService.getByEmail(email);
@@ -28,15 +32,26 @@ export class AuthService {
       if (userExist.isGoogleAuth) {
         return userExist;
       } else {
-        throw new BadRequestException('Can not proceed');
+        throw new BadRequestException(`Can not login`);
       }
     }
 
     const createdUser = await this.userService.create(payloadInput, referralId);
+
     const accessToken = await this.jwtAccessToken(createdUser);
+
     createdUser.accessToken = accessToken;
-    await createdUser.save();
+
+    return await createdUser.save();
   }
+
+  // async loginUserWithGoogleAuth(user: UserDocument, response: Response) {
+  //   const accessToken = await this.jwtAccessToken(user);
+  //   response.cookie('Authentication', accessToken, {
+  //     httpOnly: true,
+  //     expires: this.config.get('JWT_EXPIRE_TIME'),
+  //   });
+  // }
 
   async requestOtp(payload: RequestOtpDto) {
     const { email, type, phoneNumber } = payload;
@@ -55,7 +70,7 @@ export class AuthService {
     return otp;
   }
 
-  async jwtAccessToken(payload: any) {
+  async jwtAccessToken(payload) {
     payload = {
       id: payload._id,
       firstName: payload.firstName,
@@ -96,12 +111,7 @@ export class AuthService {
     user.password = hashedPassword;
 
     await user.save();
-
-    // await this.userService.updateUserProfileByPhoneNumber(phoneNumber, {
-    //   password: hashedPassword,
-    // });
-
-    return 'Password Changed';
+    return 'Password Changed Successfully';
   }
 
   async updateEmail(payload: UpdateEmailDto, userId: string) {
