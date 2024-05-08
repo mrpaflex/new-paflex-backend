@@ -28,9 +28,8 @@ export const ENVIRONMENT = {
   // },
 
   ACCESS_TOKEN: {
-    JWT_MAIN_SECRET: process.env.JWT_MAIN_SECRET,
-    JWT_ACCESS_TOKEN_EXPIRE_TIME: process.env.JWT_ACCESS_TOKEN_EXPIRE_TIME,
-    JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
+    JWT_SECRET: process.env.JWT_SECRET,
+    JWT_EXPIRE_TIME: process.env.JWT_EXPIRE_TIME,
   },
 
   REFERRAL: {
