@@ -14,16 +14,16 @@ export class MessageController {
   async create(
     @Param('id') id: string,
     @Body() payload: MessageDTO,
-    @CurrentUser() user: any,
+    @CurrentUser() user: UserDocument,
   ): Promise<any> {
-    return await this.messageService.create(id, payload, user);
+    return await this.messageService.create(id, payload, user._id);
   }
 
   //this might be removed in the future or improve on it because it look like group chat to me
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async getAll(@CurrentUser() user: any): Promise<any[]> {
-    return await this.messageService.getAll(user);
+  async getAll(@CurrentUser() user: UserDocument): Promise<any[]> {
+    return await this.messageService.getAll(user._id);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -32,6 +32,6 @@ export class MessageController {
     @Param('id') id: string,
     @CurrentUser() user: UserDocument,
   ): Promise<MessageDocument[]> {
-    return await this.messageService.getChatByUserId(id, user);
+    return await this.messageService.getChatByUserId(id, user._id);
   }
 }

@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UserDocument } from 'src/user/schemas/user.schema';
 import { MessageDTO } from './dto/chat.message.dto';
 import { UserService } from 'src/user/user.service';
 import { InjectModel } from '@nestjs/mongoose';
@@ -17,12 +16,11 @@ export class MessageService {
     private userService: UserService,
   ) {}
 
-  async create(id: string, messageBody: MessageDTO, user: UserDocument) {
-    const senderId = user?._id;
+  async create(id: string, messageBody: MessageDTO, senderId: string) {
     const { message } = messageBody;
     const receiver = await this.userService.getById(id);
     if (!receiver) {
-      throw new BadRequestException('can not proceed');
+      throw new BadRequestException('Can not proceed');
     }
     return await this.messageModel.create({
       senderId,
@@ -31,8 +29,7 @@ export class MessageService {
     });
   }
 
-  async getAll(user: UserDocument) {
-    const userId = user._id;
+  async getAll(userId: string) {
     const message = await this.messageModel
       .find({ $or: [{ senderId: userId }, { receiverId: userId }] })
       .select('message senderId receiverId');
@@ -45,17 +42,16 @@ export class MessageService {
   }
 
   async getChatByUserId(
-    otherUserId: string,
-    user: UserDocument,
+    receiverId: string,
+    userId: string,
   ): Promise<MessageDocument[]> {
-    const userId = user._id;
     const [userExist, ourMessages] = await Promise.all([
-      this.userService.getById(otherUserId),
+      this.userService.getById(receiverId),
       this.messageModel
         .find({
           $or: [
-            { senderId: userId, receiverId: otherUserId },
-            { senderId: otherUserId, receiverId: userId },
+            { senderId: userId, receiverId: receiverId },
+            { senderId: receiverId, receiverId: userId },
           ],
         })
         .select('message senderId receiverId'),

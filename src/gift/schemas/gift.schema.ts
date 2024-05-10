@@ -7,7 +7,7 @@ export class Gift {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'PostEntity' })
   postId?: mongoose.Types.ObjectId;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Live' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'LiveStream' })
   liveId?: mongoose.Types.ObjectId;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })

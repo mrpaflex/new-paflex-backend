@@ -9,6 +9,7 @@ import { OtpModule } from './otp/otp.module';
 import { MailModule } from './mail/mail.module';
 import { ChatsModule } from './websocket/module/chat.module';
 import { GiftModule } from './gift/module/gift.module';
+import { LivestreamModule } from './livestream/module/video.livestream.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { GiftModule } from './gift/module/gift.module';
     MailModule,
     ChatsModule,
     GiftModule,
+    LivestreamModule,
   ],
 })
 export class AppModule {}
