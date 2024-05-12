@@ -7,6 +7,7 @@ import { PostsService } from 'src/posts/services/posts.service';
 import { UserDocument } from 'src/user/schemas/user.schema';
 import { UserService } from 'src/user/user.service';
 import { ENVIRONMENT } from 'src/common/constant/environmentVariables/environment.var';
+import { LiveStreamService } from 'src/livestream/service/live-stream.service';
 
 @Injectable()
 export class GiftService {
@@ -15,28 +16,17 @@ export class GiftService {
     private giftModel: Model<GiftDocument>,
     private postService: PostsService,
     private userService: UserService,
+    private liveStreamService: LiveStreamService,
   ) {}
 
   async giftForPost(payload: GiftPostDto, user: UserDocument) {
-    const { postId, amount, userReceiverId } = payload;
+    const { postId, amount, userReceiverId, liveId } = payload;
 
-    if (!(postId || amount || userReceiverId)) {
+    if (!(postId || amount || userReceiverId || liveId)) {
       throw new BadRequestException('Invalid payload');
     }
 
-    let receiverId: string;
-
-    if (userReceiverId) {
-      await this.userService.getById(userReceiverId);
-      receiverId = userReceiverId;
-    } else if (postId) {
-      const post = await this.postService.getById(postId);
-      receiverId = post.creatorId.toString();
-    }
-
-    if (amount === 0 || amount < 0) {
-      throw new BadRequestException('Invalid Amount');
-    }
+    let receiverId: any;
 
     const myBalance = user.balance;
 
@@ -47,6 +37,27 @@ export class GiftService {
     const percentage = +ENVIRONMENT.PERCENTAGE.PERCENTAGE;
     const deductAmount = amount * percentage;
     const sendAmount = amount - deductAmount;
+
+    if (userReceiverId) {
+      await this.userService.getById(userReceiverId);
+      receiverId = userReceiverId;
+    } else if (postId) {
+      const post = await this.postService.getById(postId);
+      receiverId = post.creatorId;
+      await this.postService.postGifters(user._id, postId, sendAmount);
+    } else if (liveId) {
+      const live = await this.liveStreamService.getById(liveId);
+
+      if (!live.isLiveActive) {
+        throw new BadRequestException('Can not proceed');
+      }
+      receiverId = live.creatorId;
+      await this.liveStreamService.liveGifters(user._id, liveId, sendAmount);
+    }
+
+    if (amount === 0 || amount < 0) {
+      throw new BadRequestException('Invalid Amount');
+    }
 
     await this.userService.increaseBalance({
       userId: receiverId,

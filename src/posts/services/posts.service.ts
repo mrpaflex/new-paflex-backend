@@ -395,4 +395,20 @@ export class PostsService {
 
     return reactions;
   }
+
+  async postGifters(userId: string, postId: string, amount: number) {
+    await this.postModel.findOneAndUpdate(
+      { _id: postId },
+      {
+        $push: {
+          gifts: {
+            amount: amount,
+            giftedBy: userId,
+          },
+        },
+      },
+      { new: true },
+    );
+    return true;
+  }
 }

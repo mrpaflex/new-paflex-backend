@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { PostType } from 'src/common/constant/enum/enum';
 import { User } from 'src/user/schemas/user.schema';
-import { FileDB, ReactionsType } from './sub-posts.schema';
+import { FileDB, PostGift, ReactionsType } from './sub-posts.schema';
 import { PostTypeEnum } from 'src/common/enum/post.reactions.enum';
 
 export type PostsDocument = PostEntity & Document;
@@ -46,6 +46,9 @@ export class PostEntity {
 
   @Prop({ type: [ReactionsType], default: [] })
   reactions?: ReactionsType[];
+
+  @Prop({ type: [PostGift], default: [] })
+  gifts?: PostGift[];
 }
 
 export const PostSchema = SchemaFactory.createForClass(PostEntity);
