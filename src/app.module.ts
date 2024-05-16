@@ -10,6 +10,7 @@ import { MailModule } from './mail/mail.module';
 import { ChatsModule } from './websocket/module/chat.module';
 import { GiftModule } from './gift/module/gift.module';
 import { LiveStreamModule } from './livestream/module/video.livestream.module';
+import { PaymentModule } from './payments/module/payment.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { LiveStreamModule } from './livestream/module/video.livestream.module';
     ChatsModule,
     GiftModule,
     LiveStreamModule,
+    PaymentModule,
   ],
 })
 export class AppModule {}

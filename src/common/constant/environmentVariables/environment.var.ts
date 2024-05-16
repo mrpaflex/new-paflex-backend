@@ -41,4 +41,8 @@ export const ENVIRONMENT = {
   PERCENTAGE: {
     PERCENTAGE: process.env.PERCENTAGE,
   },
+  STRIPE: {
+    STRIPE_ID: process.env.STRIPE_PUBLIC_ID,
+    STRIPE_SECRET: process.env.STRIPE_SECRET,
+  },
 };
