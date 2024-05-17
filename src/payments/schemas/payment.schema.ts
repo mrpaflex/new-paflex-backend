@@ -31,7 +31,7 @@ export class Payment {
   cardDetails: CardDetail;
 
   @Prop({ type: Date })
-  updatedAt: Date;
+  updatedAt?: Date;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

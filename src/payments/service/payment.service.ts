@@ -3,8 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Payment, PaymentDocument } from '../schemas/payment.schema';
 import { Model } from 'mongoose';
 import { PaymentDto } from '../dto/payment.dto';
-
-import Stripe from 'stripe';
 import { createCharge } from '../stripe/payment.stripe';
 
 @Injectable()
@@ -15,7 +13,7 @@ export class PaymentService {
   ) {}
 
   async createPayment(payload: PaymentDto, userId: string) {
-    const { paymentType, point, charge } = payload;
+    const { paymentType, point, nameOnCard, charge } = payload;
 
     const { card, amount } = charge;
 
@@ -24,15 +22,19 @@ export class PaymentService {
       amount,
     });
 
-    console.log(
-      'status',
-      stripeCharge.status,
-      'id',
-      stripeCharge.id,
-      'payment type',
-      stripeCharge.payment_method_types,
-    );
+    const payment = await this.paymentModel.create({
+      userId: userId,
+      transactionReferenceId: stripeCharge.id,
+      transactionStatus: stripeCharge.status,
+      amount: amount,
+      point: point,
+      paymentType: paymentType,
+      cardDetails: {
+        nameOnCard: nameOnCard,
+        number: card.number,
+      },
+    });
 
-    return;
+    return payment;
   }
 }
