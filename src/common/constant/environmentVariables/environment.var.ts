@@ -45,4 +45,9 @@ export const ENVIRONMENT = {
     STRIPE_ID: process.env.STRIPE_PUBLIC_ID,
     STRIPE_SECRET: process.env.STRIPE_SECRET,
   },
+
+  PAYSTACK: {
+    PAYSTACK_SECRET: process.env.PAYSTACK_SECRET,
+    PAYSTACK_URL: process.env.PAYSTACK_URL,
+  },
 };

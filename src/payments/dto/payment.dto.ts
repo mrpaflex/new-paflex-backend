@@ -38,11 +38,7 @@ export class CreateChargeDto {
   amount: number;
 }
 
-export class PaymentDto {
-  @IsNotEmpty()
-  @IsString()
-  paymentType: string;
-
+export class PaymentWithStripeDto {
   @IsNotEmpty()
   @IsNumber()
   point: number;
@@ -56,4 +52,14 @@ export class PaymentDto {
   @ValidateNested()
   @Type(() => CreateChargeDto)
   charge: CreateChargeDto;
+}
+
+export class PaymentDto {
+  @IsNotEmpty()
+  @IsNumber()
+  point: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
 }

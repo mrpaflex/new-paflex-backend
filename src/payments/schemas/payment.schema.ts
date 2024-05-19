@@ -9,26 +9,38 @@ export class Payment {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   userId: mongoose.Types.ObjectId;
 
-  @Prop({ type: String, required: true })
-  transactionReferenceId: string;
+  @Prop({ type: String })
+  transactionReference?: string;
 
-  @Prop({ type: String, required: true })
-  transactionStatus: string;
+  @Prop({ type: String })
+  transactionStatus?: string;
 
-  @Prop({ type: Number, required: true })
-  amount: number;
+  @Prop({ type: Number })
+  amount?: number;
 
   @Prop({ type: Number, required: true })
   point: number;
 
-  @Prop({ type: String, required: true })
-  paymentType: string;
+  @Prop({ type: String })
+  currency: any;
+
+  @Prop({ type: String })
+  paymentType?: string;
+
+  @Prop({ type: [String], default: [] })
+  channel: [string];
+
+  @Prop({ type: String })
+  gateway_response?: string;
 
   @Prop({ type: Date, default: Date.now() })
   createdAt: Date;
 
-  @Prop({ type: CardDetail, required: true })
-  cardDetails: CardDetail;
+  @Prop({ type: Date })
+  paid_at: Date;
+
+  @Prop({ type: CardDetail })
+  cardDetails?: CardDetail;
 
   @Prop({ type: Date })
   updatedAt?: Date;
