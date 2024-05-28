@@ -8,45 +8,18 @@ const stripe = new Stripe(ENVIRONMENT.STRIPE.STRIPE_SECRET, {
 
 export const createCharge = async (payload: CreateChargeDto) => {
   try {
-    const { card, amount } = payload;
-
-    const paymentMethod = await stripe.paymentMethods.create({
-      type: 'card',
-      card: { token: 'tok_visa' },
-    });
+    const { amount } = payload;
 
     const paymentIntent = await stripe.paymentIntents.create({
-      payment_method: paymentMethod.id,
+      payment_method: 'pm_card_visa',
       amount: amount * 100,
       confirm: true,
-      payment_method_types: ['card'],
       currency: 'usd',
+      payment_method_types: ['card'],
     });
 
     return paymentIntent;
   } catch (error) {
-    console.error('Error creating charge:', error);
     throw error; // or handle the error as needed
   }
 };
-
-// export const createCharge = async (payload: CreateChargeDto) => {
-//   const { card, amount } = payload;
-
-//   const paymentMethod = await stripe.paymentMethods.create({
-//     type: 'card',
-//     card,
-//   });
-//   // console.log('stripe payment method', paymentMethod);
-
-//   const paymentIntent = await stripe.paymentIntents.create({
-//     payment_method: paymentMethod.id,
-//     //payment_method: 'pm_card_visa',
-//     amount: amount * 100,
-//     confirm: true,
-//     payment_method_types: ['card'],
-//     currency: 'usd',
-//   });
-
-//   return paymentIntent;
-// };

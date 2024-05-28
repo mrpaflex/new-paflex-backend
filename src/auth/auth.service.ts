@@ -21,8 +21,8 @@ export class AuthService {
     private otpService: OtpService,
     private config: ConfigService,
   ) {}
-  async create(payloadInput: GoogleCreateUserDto, referralId?: string) {
-    const { email } = payloadInput;
+  async create(payload: GoogleCreateUserDto, referralId?: string) {
+    const { email } = payload;
 
     const userExist = await this.userService.getByEmail(email);
 
@@ -35,12 +35,12 @@ export class AuthService {
         await userExist.save();
 
         return userExist;
-      } else {
+      } else if (!userExist.isGoogleAuth) {
         throw new BadRequestException(`Can not login`);
       }
     }
 
-    const createdUser = await this.userService.create(payloadInput, referralId);
+    const createdUser = await this.userService.create(payload, referralId);
 
     const accessToken = await this.jwtAccessToken(createdUser);
 
@@ -48,14 +48,6 @@ export class AuthService {
 
     return await createdUser.save();
   }
-
-  // async loginUserWithGoogleAuth(user: UserDocument, response: Response) {
-  //   const accessToken = await this.jwtAccessToken(user);
-  //   response.cookie('Authentication', accessToken, {
-  //     httpOnly: true,
-  //     expires: this.config.get('JWT_EXPIRE_TIME'),
-  //   });
-  // }
 
   async requestOtp(payload: RequestOtpDto) {
     const { email, type, phoneNumber } = payload;
@@ -86,7 +78,7 @@ export class AuthService {
     return accessToken;
   }
 
-  async forgetPassword(payload: ForgotPasswordDto) {
+  async forgotPassword(payload: ForgotPasswordDto) {
     const { phoneNumber } = payload;
     await this.userService.getByPhoneNumber(phoneNumber);
     await this.otpService.sendOtp({

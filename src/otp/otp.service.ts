@@ -28,25 +28,27 @@ export class OtpService {
   ) {}
 
   async createOtp(payload: CreateOtpDto) {
-    const { phoneNumber } = payload;
+    const { phoneNumber, type } = payload;
 
     const otpExist = await this.otpModel.findOne({
-      phoneNumber: phoneNumber,
+      phoneNumber,
+      type,
     });
 
-    if (otpExist) {
-      return await this.otpModel.findOneAndUpdate(
-        {
-          phoneNumber: phoneNumber,
-        },
-        payload,
-        {
-          new: true,
-        },
-      );
+    if (!otpExist) {
+      return await this.otpModel.create({ ...payload });
     }
 
-    return await this.otpModel.create({ ...payload });
+    return await this.otpModel.findByIdAndUpdate(
+      {
+        _id: otpExist._id,
+      },
+      { ...payload },
+      {
+        new: true,
+        upsert: true,
+      },
+    );
   }
 
   async sendOtp(payload: SendOtpDto): Promise<any> {
