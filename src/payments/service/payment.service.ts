@@ -9,15 +9,24 @@ import {
   verifyPayStackPayment,
 } from '../paystack/paystack.payment';
 import { UserDocument } from 'src/user/schemas/user.schema';
+import { MailService } from 'src/mail/mail.service';
+import {
+  PaymentSubject,
+  purchasePointResponse,
+} from '../../common/constant/message/msg.response';
 
 @Injectable()
 export class PaymentService {
   constructor(
     @InjectModel(Payment.name)
     private readonly paymentModel: Model<PaymentDocument>,
+    private mailService: MailService,
   ) {}
 
-  async createPaymentWithStripe(payload: PaymentWithStripeDto, userId: string) {
+  async createPaymentWithStripe(
+    payload: PaymentWithStripeDto,
+    user: UserDocument,
+  ) {
     const { point, nameOnCard, charge } = payload;
 
     const { card, amount } = charge;
@@ -28,7 +37,7 @@ export class PaymentService {
     });
 
     const payment = await this.paymentModel.create({
-      userId: userId,
+      userId: user._id,
       transactionReference: stripeCharge.id,
       transactionStatus: stripeCharge.status,
       channel: stripeCharge.payment_method_types,
@@ -40,6 +49,11 @@ export class PaymentService {
         number: card.number,
       },
     });
+
+    let template = await purchasePointResponse(amount, point);
+    let subject = PaymentSubject;
+
+    await this.mailService.sendEmail(user.email, subject, template);
 
     return payment;
   }
@@ -63,6 +77,11 @@ export class PaymentService {
       transactionReference: initializePayment.paymentReference,
     });
 
+    let template = await purchasePointResponse(amount, point);
+    let subject = PaymentSubject;
+
+    await this.mailService.sendEmail(user.email, subject, template);
+
     return initializePayment;
   }
 
@@ -84,6 +103,7 @@ export class PaymentService {
       },
       { new: true },
     );
+
     return true;
   }
 }

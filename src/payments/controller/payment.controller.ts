@@ -24,7 +24,7 @@ export class PaymentController {
     @Body() payload: PaymentWithStripeDto,
     @CurrentUser() user: UserDocument,
   ) {
-    return await this.paymentService.createPaymentWithStripe(payload, user._id);
+    return await this.paymentService.createPaymentWithStripe(payload, user);
   }
 
   @Get('verify/:reference')

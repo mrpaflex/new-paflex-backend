@@ -376,6 +376,8 @@ export class UserService {
   async jwtAccessToken(payload) {
     payload = {
       id: payload._id,
+      email: payload.email,
+      phoneNumber: payload.phoneNumber,
       firstName: payload.firstName,
       lastName: payload.lastName,
     };

@@ -59,12 +59,13 @@ export class OtpService {
     let template;
     let subject;
 
+    const { AccountVerificationTemplate, ResetPasswordTemplate } =
+      ConstantMessage;
     if (type === OtpType.PHONE_NUMBER_VERIFICATION) {
-      template = await ConstantMessage.AccountVerificationTemplate(code);
+      template = await AccountVerificationTemplate(code);
       subject = ConstantMessage.subject;
-    }
-    if (type === OtpType.RESET_PASSWORD) {
-      template = await ConstantMessage.ResetPasswordTemplate(code);
+    } else if (type === OtpType.RESET_PASSWORD) {
+      template = await ResetPasswordTemplate(code);
       subject = ConstantMessage.subject;
     }
 

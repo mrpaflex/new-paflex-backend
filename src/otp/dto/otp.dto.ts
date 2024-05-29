@@ -24,7 +24,7 @@ export class CreateOtpDto {
 
   @IsNotEmpty()
   @IsEnum(OtpType)
-  type: string;
+  type: OtpType;
 }
 
 export class SendOtpDto {
@@ -38,7 +38,7 @@ export class SendOtpDto {
 
   @IsEnum(OtpType)
   @IsNotEmpty()
-  type: string;
+  type: OtpType;
 }
 
 export class VerifyOtpDto extends CreateOtpDto {}
