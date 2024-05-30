@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -7,24 +8,21 @@ import {
   Patch,
   Post,
   UploadedFile,
-  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserDocument } from './schemas/user.schema';
-import {
-  CreateUserDto,
-  LoginUserDto,
-  PasswordDto,
-  UpdateUserDto,
-  VerifyPhoneNumberDto,
-} from './dto/user.dto';
+import { User, UserDocument } from './schemas/user.schema';
+import { CreateUserDto, UpdateUserDto, UserDto } from './dto/user.dto';
 import { CurrentUser } from 'src/auth/decorators/loggedIn-user.decorator';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
 import { multerOptions } from 'src/common/utils/cloudinary/multer';
 import { Express } from 'express';
+import {
+  CustomClassInterceptor,
+  Serialize,
+} from 'src/common/interceptor/serialize.interceptor';
 
 @Controller('user')
 export class UserController {
@@ -42,8 +40,16 @@ export class UserController {
   }
 
   @Get()
+  @Serialize(UserDto)
   async getAll(): Promise<UserDocument[]> {
     return await this.userService.getAll();
+  }
+
+  @Get('find-one/:id')
+  @Serialize(UserDto)
+  @UseInterceptors(new CustomClassInterceptor(UserDto))
+  async findOne(@Param('id') id: string): Promise<UserDocument> {
+    return await this.userService.getById(id);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -64,19 +70,22 @@ export class UserController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete('account')
-  async delete(@CurrentUser() user: any) {
-    return await this.userService.delete(user);
+  async deleteAccount(@CurrentUser() user: UserDocument) {
+    return await this.userService.deleteAccount(user);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Delete('profile-photo')
-  async profilePhoto(@CurrentUser() user: any) {
+  async profilePhoto(@CurrentUser() user: UserDocument) {
     return await this.userService.removeProfilePhoto(user);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('follow/:id')
-  async followAndUnFollowed(@Param('id') id: string, @CurrentUser() user: any) {
+  async followAndUnFollowed(
+    @Param('id') id: string,
+    @CurrentUser() user: UserDocument,
+  ) {
     return await this.userService.followAndUnFollow(id, user);
   }
 }

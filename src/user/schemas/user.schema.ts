@@ -4,6 +4,7 @@ import { Interested, UserType } from 'src/common/constant/enum/enum';
 import { Photo } from './sub-user.schema';
 
 export type UserDocument = User & Document;
+
 @Schema({ timestamps: true })
 export class User {
   @Prop({ type: String })
@@ -42,8 +43,8 @@ export class User {
   @Prop({ type: String })
   phoneNumber?: string;
 
-  @Prop({ type: String, enum: UserType, default: UserType.NORMAL_USER })
-  userType: string;
+  @Prop({ type: [String], enum: UserType, default: UserType.NORMAL_USER })
+  userType: UserType[];
 
   @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: [] })
   followers?: User[];

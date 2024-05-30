@@ -12,6 +12,7 @@ import {
 import { OtpType } from 'src/otp/enum/otp.enum';
 import { hashPassword } from '../common/utils/hashed/password.bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { UserDocument } from 'src/user/schemas/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -112,13 +113,13 @@ export class AuthService {
     return 'Password Changed Successfully';
   }
 
-  async updateEmail(payload: UpdateEmailDto, userId: string) {
+  async updateEmail(payload: UpdateEmailDto, user: UserDocument) {
     const { email } = payload;
-    const user = await this.userService.getById(userId);
 
     if (user.isGoogleAuth) {
       throw new BadRequestException('You can not change you google email');
     }
+
     user.email = email;
 
     await user.save();

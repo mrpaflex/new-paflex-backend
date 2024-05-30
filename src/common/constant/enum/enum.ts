@@ -1,13 +1,13 @@
 export enum UserType {
-  'ADMIN' = 'admin',
-  'NORMAL_USER' = 'user',
-  'MODERATOR' = 'moderator',
+  'ADMIN' = 'Admin',
+  'NORMAL_USER' = 'User',
+  'MODERATOR' = 'Moderator',
 }
 
 export enum Interested {
-  'MEN' = 'men',
-  'WOMEN' = 'women',
-  'BOTH' = 'both',
+  'MEN' = 'Men',
+  'WOMEN' = 'Women',
+  'BOTH' = 'Both',
 }
 
 export enum PostType {

@@ -151,6 +151,7 @@ export class UserService {
 
   async getById(id: string): Promise<UserDocument> {
     const user = await this.userModel.findById(id);
+
     if (!user) {
       throw new NotFoundException('user not found');
     }
@@ -216,7 +217,7 @@ export class UserService {
     return `profile picture uploaded successfully`;
   }
 
-  async delete(user: UserDocument) {
+  async deleteAccount(user: UserDocument) {
     const userId = user._id.toString();
 
     const posts = await this.postService.MyPosts(user);
@@ -242,7 +243,7 @@ export class UserService {
     const profilePhoto = user.profilePhoto;
 
     if (!profilePhoto || profilePhoto.length === 0) {
-      return;
+      throw new BadRequestException('Profile is Empty');
     }
 
     await deletePostFile(profilePhoto);

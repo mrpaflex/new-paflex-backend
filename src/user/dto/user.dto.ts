@@ -1,8 +1,7 @@
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose, Type } from 'class-transformer';
 import {
   IsArray,
   IsDateString,
-  IsObject,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -10,10 +9,10 @@ import {
   IsNotEmpty,
   IsMongoId,
   IsNumber,
-  IsEmail,
 } from 'class-validator';
-import { Interested } from 'src/common/constant/enum/enum';
-import { OtpType } from 'src/otp/enum/otp.enum';
+import { Interested, UserType } from 'src/common/constant/enum/enum';
+import { Photo } from '../schemas/sub-user.schema';
+import mongoose from 'mongoose';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -43,14 +42,13 @@ export class UpdateUserDto {
   phones?: string;
 
   @IsOptional()
-  @IsObject()
-  profilePicture?: object;
+  @IsString()
+  profilePicture?: string;
 
   @IsOptional()
   @IsArray()
-  @IsString({ each: true })
   @IsEnum(Interested, { each: true })
-  interestedIn: string[];
+  interestedIn: Interested[];
 
   @IsOptional()
   @IsString()
@@ -91,3 +89,48 @@ export class IncreaseBalanceDto {
 }
 
 export class LoginUserDto extends PasswordDto {}
+
+export class UserDto {
+  @Expose()
+  email: string;
+
+  @Expose()
+  phoneNumber: string;
+
+  @Expose()
+  firstName: string;
+
+  @Expose()
+  lastName: string;
+
+  @Expose()
+  @Type(() => Photo)
+  profilePhoto: Photo[];
+
+  @Expose()
+  referredBy: mongoose.Types.ObjectId;
+
+  @Expose()
+  isGoogleAuth: boolean;
+
+  @Expose()
+  balance: number;
+
+  @Expose()
+  dob: string;
+
+  @Expose()
+  userType: UserType;
+
+  @Expose()
+  numberOfFollowers: number;
+
+  @Expose()
+  interestedIn: string;
+
+  @Expose()
+  description: string;
+
+  @Expose()
+  accessToken: string;
+}

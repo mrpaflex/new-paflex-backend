@@ -19,6 +19,7 @@ import {
   CreateUserDto,
   LoginUserDto,
   PasswordDto,
+  UserDto,
   VerifyPhoneNumberDto,
 } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
@@ -27,6 +28,7 @@ import { CurrentUser } from './decorators/loggedIn-user.decorator';
 import { UserDocument } from 'src/user/schemas/user.schema';
 import { Response } from 'express';
 import { LocalAuthGuard } from './guards/local.auth.guards';
+import { Serialize } from 'src/common/interceptor/serialize.interceptor';
 
 @Controller('auth')
 export class AuthController {
@@ -58,6 +60,7 @@ export class AuthController {
     );
   }
 
+  @Serialize(UserDto)
   @Post('phone-number-login')
   async login(@Body() payload: LoginUserDto) {
     return await this.userService.loginWithPhoneNumber(payload);
@@ -69,7 +72,7 @@ export class AuthController {
     @Body() payload: UpdateEmailDto,
     @CurrentUser() user: UserDocument,
   ) {
-    return await this.authService.updateEmail(payload, user._id);
+    return await this.authService.updateEmail(payload, user);
   }
 
   @Post('set-password')
