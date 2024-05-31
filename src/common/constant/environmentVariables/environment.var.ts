@@ -33,7 +33,7 @@ export const ENVIRONMENT = {
     BucketName: process.env.AWS_BUCKET_NAME,
   },
 
-  CONN_PORT: {
+  CONNECTION: {
     PORT: process.env.PORT,
     SESSION_SECRET: process.env.SESSION_SECRET,
   },

@@ -24,8 +24,6 @@ export class CustomClassInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((data: any) => {
         if (Array.isArray(data)) {
-          //it's either you use plainToInstance or plainToClass
-          //please note that plainToClass is deprecated
           return data.map((item) =>
             plainToInstance(this.dto, item, { excludeExtraneousValues: true }),
           );
