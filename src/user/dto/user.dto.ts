@@ -92,6 +92,9 @@ export class LoginUserDto extends PasswordDto {}
 
 export class UserDto {
   @Expose()
+  _id: string;
+
+  @Expose()
   email: string;
 
   @Expose()

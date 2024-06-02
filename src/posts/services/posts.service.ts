@@ -184,7 +184,7 @@ export class PostsService {
 
     await this.postModel.deleteMany({ _id: { $in: ids }, creatorId: user._id });
 
-    return;
+    return 'deleted';
   }
 
   async updatePost(

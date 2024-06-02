@@ -21,13 +21,13 @@ async function bootstrap() {
   // );
 
   app.use(cookieParser());
-  app.use(
-    session({
-      secret: ENVIRONMENT.CONNECTION.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
-    }),
-  );
+  // app.use(
+  //   session({
+  //     secret: ENVIRONMENT.CONNECTION.SESSION_SECRET,
+  //     resave: false,
+  //     saveUninitialized: false,
+  //   }),
+  // );
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 

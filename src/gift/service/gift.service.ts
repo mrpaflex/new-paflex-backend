@@ -34,9 +34,15 @@ export class GiftService {
       throw new BadRequestException('Insufficient funds');
     }
 
+    if (amount === 0 || amount < 0) {
+      throw new BadRequestException('Invalid Amount');
+    }
+
     const percentage = +ENVIRONMENT.PERCENTAGE.PERCENTAGE;
     const deductAmount = amount * percentage;
     const sendAmount = amount - deductAmount;
+
+    ///deductAmount will be sent to company account
 
     if (userReceiverId) {
       await this.userService.getById(userReceiverId);
@@ -53,10 +59,6 @@ export class GiftService {
       }
       receiverId = live.creatorId;
       await this.liveStreamService.liveGifters(user._id, liveId, sendAmount);
-    }
-
-    if (amount === 0 || amount < 0) {
-      throw new BadRequestException('Invalid Amount');
     }
 
     await this.userService.increaseBalance({
