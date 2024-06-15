@@ -101,6 +101,9 @@ export class UserDto {
   phoneNumber: string;
 
   @Expose()
+  username: string;
+
+  @Expose()
   firstName: string;
 
   @Expose()

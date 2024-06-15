@@ -22,8 +22,8 @@ export class Otp {
 
   @Prop({
     type: Date,
-    default: () => new Date(Date.now() + 15 * 60 * 1000),
-    expires: '15m',
+    default: () => new Date(Date.now() + 60 * 60 * 1000),
+    expires: '1h',
   })
   expiresAt: Date;
 }
