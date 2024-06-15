@@ -127,9 +127,13 @@ export class UserService {
 
     const token = await this.jwtAccessToken(user);
 
-    user.accessToken = token;
-    await user.save();
+    // user.accessToken = token;
+    // await user.save();
 
+    return {
+      user: user,
+      accessToken: token,
+    };
     return user;
   }
 

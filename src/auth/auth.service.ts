@@ -30,12 +30,10 @@ export class AuthService {
     if (userExist) {
       if (userExist.isGoogleAuth) {
         const accessToken = await this.jwtAccessToken(userExist);
-
-        userExist.accessToken = accessToken;
-
-        await userExist.save();
-
-        return userExist;
+        return {
+          user: userExist,
+          accessToken: accessToken,
+        };
       } else if (!userExist.isGoogleAuth) {
         throw new BadRequestException(`Can not login`);
       }
@@ -45,9 +43,10 @@ export class AuthService {
 
     const accessToken = await this.jwtAccessToken(createdUser);
 
-    createdUser.accessToken = accessToken;
-
-    return await createdUser.save();
+    return {
+      createdUser,
+      accessToken,
+    };
   }
 
   async requestOtp(payload: RequestOtpDto) {

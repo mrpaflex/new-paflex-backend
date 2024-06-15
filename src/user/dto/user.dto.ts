@@ -136,6 +136,12 @@ export class UserDto {
 
   @Expose()
   description: string;
+}
+
+export class LoginResponse {
+  @Expose()
+  @Type(() => UserDto)
+  user: UserDto;
 
   @Expose()
   accessToken: string;

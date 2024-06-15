@@ -18,6 +18,7 @@ import {
 } from './dto/auth.dto';
 import {
   CreateUserDto,
+  LoginResponse,
   LoginUserDto,
   PasswordDto,
   UserDto,
@@ -56,7 +57,7 @@ export class AuthController {
     );
   }
 
-  @Serialize(UserDto)
+  @Serialize(LoginResponse)
   @Post('phone-number-login')
   async login(@Body() payload: LoginUserDto) {
     return await this.userService.loginWithPhoneNumber(payload);
