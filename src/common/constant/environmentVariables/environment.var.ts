@@ -50,4 +50,9 @@ export const ENVIRONMENT = {
     PAYSTACK_SECRET: process.env.PAYSTACK_SECRET,
     PAYSTACK_URL: process.env.PAYSTACK_URL,
   },
+
+  THROTTLE: {
+    TTL: process.env.TTL,
+    LIMIT: process.env.LIMIT,
+  },
 };

@@ -85,8 +85,12 @@ export class OtpService {
     }
 
     if (phoneNumber) {
-      //await TermiiSendSMS();
-      //await TwilioSms(phoneNumber, template);
+      try {
+        //await TermiiSendSMS();
+        //await TwilioSms(phoneNumber, template);
+      } catch (error) {
+        throw error;
+      }
     }
     return 'otp sent';
   }

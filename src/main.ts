@@ -5,8 +5,6 @@ import * as cookieParser from 'cookie-parser';
 import { ENVIRONMENT } from './common/constant/environmentVariables/environment.var';
 import * as compression from 'compression';
 import helmet from 'helmet';
-import * as session from 'express-session';
-//const cookieSession = require('cookie-session');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,22 +12,9 @@ async function bootstrap() {
   app.enableCors();
   app.use(helmet());
 
-  // app.use(
-  //   cookieSession({
-  //     keys: ['lovePeace'],
-  //   }),
-  // );
-
   app.use(cookieParser());
-  // app.use(
-  //   session({
-  //     secret: ENVIRONMENT.CONNECTION.SESSION_SECRET,
-  //     resave: false,
-  //     saveUninitialized: false,
-  //   }),
-  // );
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   app.use(
     compression({

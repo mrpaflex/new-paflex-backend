@@ -11,6 +11,9 @@ import { ChatsModule } from './websocket/module/chat.module';
 import { GiftModule } from './gift/module/gift.module';
 import { LiveStreamModule } from './livestream/module/video.livestream.module';
 import { PaymentModule } from './payments/module/payment.module';
+import { ThroModule } from './auth/throtller/throttle.module';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -35,6 +38,14 @@ import { PaymentModule } from './payments/module/payment.module';
     GiftModule,
     LiveStreamModule,
     PaymentModule,
+    ThroModule,
+  ],
+
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}
